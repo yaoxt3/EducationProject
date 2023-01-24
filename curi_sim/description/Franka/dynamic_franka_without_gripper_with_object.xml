@@ -9,6 +9,7 @@
 ====================================================== -->
     <compiler angle="radian"/>
 <!--    <option collision="predefined" timestep="0.005" integrator="RK4" />-->
+    <option gravity="0 0 -9.81" />
     <size nconmax="100" njmax="500" nuser_actuator="5"/>
     <default class="main">
         <default class="panda">
@@ -84,12 +85,14 @@
         <light diffuse="0.8 0.8 0.8" dir="0.316228 0 -0.948683" specular="0.3 0.3 0.3" pos="-1 0 3" castshadow="false"/>
         <geom material="MatGnd" name="ground" size="5 5 10" type="plane"/>
 
-        <geom name="table" pos="-0.8 0 0.26" type="plane" size=".6 2 0.3" group = "1" rgba=".5 .5 .5 .9" />
+        <geom name="table" pos="1. 0 0.26" type="plane" size="0.8 2 0.3" group = "1" rgba=".5 .5 .5 .9" />
+
+
 
         <body name="base" pos="0 0 0">
             <body name="controller_box" pos="0 0 0">
                 <inertial diaginertia="1.71363 1.27988 0.809981" mass="46.64" pos="-0.325 0 -0.38"/>
-                <geom pos="0.1 0 0.13" size="0.3 0.3 0.13" type="box" name="controller_box_col"/>
+                <geom pos="-0.1 0 0.13" size="0.3 0.3 0.13" type="box" name="controller_box_col"/>
             </body>
             <body name="panda0_link0" pos="0 0 0.26">
                 <inertial diaginertia="0.122527 0.11364 0.0827785" mass="2.91242" pos="0 0 0"/>
@@ -145,17 +148,26 @@
             </body>
         </body>
 
-        <body name="redobject" pos="-1.2 0 0.5">
-            <joint axis="1 0 0" damping="0.1" name="slide0" pos="0 0 0" type="slide"/>
-            <joint axis="0 1 0" damping="0.1" name="slide1" pos="0 0 0" type="slide"/>
-            <geom mass="10.0" pos="0 0 0" rgba="1 0 0 1" size="0.15 0.1 0.1" type="box"/>
-        </body>
-
-<!--        <body name="object" pos="0.1 2.5 0.15">-->
+<!--        <body name="object" pos="0.1 2 0.15">-->
 <!--            <joint axis="1 0 0" damping="0.1" name="slide0" pos="0 0 0" type="slide"/>-->
 <!--            <joint axis="0 1 0" damping="0.1" name="slide1" pos="0 0 0" type="slide"/>-->
+<!--            <joint axis="0 0 1" damping="1" name="slide2" pos="0 0 0" type="slide"/>-->
 <!--            <geom mass="10.0" pos="0 0 0" rgba="1 0 0 1" size="0.3 0.2 0.15" type="box"/>-->
 <!--        </body>-->
+        <body name="object" pos="1.2 0 0.3" quat="1 0 0 0" >
+            <inertial pos="0 0 0" mass=".155" diaginertia="0.0003686049833333333 0.001255996129167 0.001460916979167" />
+            <joint name="object" type="free" limited="false" />
+            <geom name="object" type="box" size="0.15075 0.0745 0.0398" group="1" rgba=".9 0 0 1" />
+            <site name="obj_front" pos="-0.15074 0 0" quat="1 0 0 0"          type="box" size="1e-5 0.04 0.02" group="2" rgba="1 1 0 1" />
+            <site name="obj_right" pos="0 -0.07449 0" quat="0.707 0 0 0.707"  type="box" size="1e-5 0.10 0.02" group="2" rgba="1 1 0 1" />
+            <site name="obj_left"  pos="0 +0.07449 0" quat="0.707 0 0 -0.707" type="box" size="1e-5 0.10 0.02" group="2" rgba="1 1 0 1" />
+            <site name="obj_rear"  pos="+0.15074 0 0" quat="0 0 0 1"          type="box" size="1e-5 0.04 0.02" group="2" rgba="1 1 0 1" />
+            <!-- Point contact sites -->
+            <!-- <site name="obj_front" pos="-0.15075 0 0" quat="1 0 0 0"          type="sphere" size="1e-3" group="2" rgba="1 1 0 1" /> -->
+            <!-- <site name="obj_right" pos="0 -0.0745 0"  quat="0.707 0 0 0.707"  type="sphere" size="1e-3" group="2" rgba="1 1 0 1" /> -->
+            <!-- <site name="obj_left"  pos="0 +0.0745 0"  quat="0.707 0 0 -0.707" type="sphere" size="1e-3" group="2" rgba="1 1 0 1" /> -->
+            <!-- <site name="obj_rear"  pos="+0.15075 0 0" quat="0 0 0 1"          type="sphere" size="1e-3" group="2" rgba="1 1 0 1" /> -->
+        </body>
     </worldbody>
     <actuator>
         <general ctrllimited="true" ctrlrange="-80 80" joint="panda0_joint1" name="panda0_joint1"/>
@@ -165,8 +177,8 @@
         <general ctrllimited="true" ctrlrange="-80 80" joint="panda0_joint5" name="panda0_joint5"/>
         <general ctrllimited="true" ctrlrange="-12 12" joint="panda0_joint6" name="panda0_joint6"/>
         <general ctrllimited="true" ctrlrange="-12 12" joint="panda0_joint7" name="panda0_joint7"/>
-        <motor gear="500.0" joint="slide0"/>
-        <motor gear="500.0" joint="slide1"/>
+<!--        <motor gear="200.0" joint="slide0"/>-->
+<!--        <motor gear="200.0" joint="slide1"/>-->
     </actuator>
     <sensor>
         <jointpos joint="panda0_joint1" name="fr_arm_jp1"/>
@@ -191,8 +203,7 @@
         <actuatorfrc actuator="panda0_joint6" name="fr_arm_jf6"/>
         <actuatorfrc actuator="panda0_joint7" name="fr_arm_jf7"/>
     </sensor>
-    <keyframe>
+<!--    <keyframe>-->
 <!--        <key qpos="0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0" qvel="0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0" time="0.0"/>-->
-        <key qpos="0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0" qvel="0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0" time="0.0"/>
-    </keyframe>
+<!--    </keyframe>-->
 </mujoco>

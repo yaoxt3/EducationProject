@@ -68,7 +68,8 @@ def mujocoFunc():
             # Use internal functions to read out mj_contactFor
             c_array = np.zeros(6, dtype=np.float64)
             mjp.functions.mj_contactForce(sim.model, sim.data, i, c_array)
-            if sim.model.geom_id2name(contact.geom1)=="link7_col" or sim.model.geom_id2name(contact.geom2)=="link7_col":
+            if sim.model.geom_id2name(contact.geom1) == "link7_col" or \
+                    sim.model.geom_id2name(contact.geom2) == "link7_col":
                 force_norm = np.sqrt(np.sum(np.square(c_array[0:3])))
                 print("Force Norm", force_norm)
             print('c_array', c_array)
@@ -84,6 +85,7 @@ def mujocoFunc():
                 sleep(0.05)
                 vel = math.sqrt(env.sim.data.qvel[7] ** 2 + env.sim.data.qvel[8] ** 2)
                 pub_vel.publish(vel)
+                pub_f.publish(force_norm)
                 print("applied force!")
             flag = 1
             env.sim.data.xfrc_applied[env.sim.model.body_name2id("object"), :] = np.array([0, 0, 0, 0, 0, 0])

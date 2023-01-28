@@ -68,4 +68,15 @@ while(1):
 #             break
 #     env.render()
 
-
+# while(1):
+#     #print(env.sim.data.qacc)
+#     #jtor = np.array([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
+#     theta = robot.joint_pos
+#     jtor2 = dynamics.gravityforces(theta)
+#     jtor = robot.torque_compensation
+#     # print(jtor2)
+#     # print(jtor)
+#
+#     robot.set_joint_torque(jtor2)
+#     env.sim.step()
+#     env.render()

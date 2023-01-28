@@ -2,7 +2,7 @@ from . import tool as T
 import numpy as np
 
 class Robot(object):
-    def __init__(self,sim,screw=None,initial_pose=None):
+    def __init__(self, sim, screw=None, initial_pose=None):
         '''
         :param sim (MjSim): Mujoco sim
         :param screw (np.array): The joint screw axes in the space frame
@@ -58,7 +58,7 @@ class Robot(object):
         '''
         return self.pose_in_base_from_name('panda0_link7')
 
-    def set_joint_torque(self,jfrc):
+    def set_joint_torque(self, jfrc):
         # for i in range(len(jfrc)):
         #     if jfrc[i] <-80:
         #         jfrc[i] = -80
@@ -67,7 +67,7 @@ class Robot(object):
         self.sim.data.qfrc_applied[0:7] = jfrc
         self.sim.forward()
 
-    def set_joint_pos(self,jpos):
+    def set_joint_pos(self, jpos):
         '''
         :param jpos (np.array): Set joints position of the robot
         '''

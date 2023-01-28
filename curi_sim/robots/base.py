@@ -4,8 +4,9 @@ from . import tool as T
 import numpy as np
 from curi_sim import core
 
+
 class Base_robot(object):
-    def __init__(self,sim):
+    def __init__(self, sim):
         self.sim = sim
 
     @property
@@ -13,27 +14,30 @@ class Base_robot(object):
         '''
         :return qpos (np.array): joint position
         '''
-        return self.sim.data.qpos#[0:18]
+        return self.sim.data.qpos[0:7]  # [0:18]
 
     @property
     def joint_vel(self):
         """
         :return joint angular velocities (np.array)
         """
-        return self.sim.data.qvel#[0:18]
+        return self.sim.data.qvel[0:7] #[0:18]
 
     @property
     def joint_acc(self):
         """
         :return joint angular velocities (np.array)
         """
-        return self.sim.data.qacc#[0:18]
+        return self.sim.data.qacc[0:7]  #[0:18]
 
     def set_joint_torque(self,jfrc):
         pass
         #self.sim.data.qfrc_applied[0:18] = jfrc #the sequence is as same as xml model
         #self.sim.forward()
 
+    def get_site_pos(self, siteName):
+        id = self.sim.site_names.index(siteName)
+        return self.sim.data.site_xpos[id].copy()
 
 class Curi_robot(Base_robot):
 
@@ -203,7 +207,7 @@ class Curi_robot(Base_robot):
 
 class Franka_robot(Base_robot):
 
-    def __init__(self, sim):
+    def __init__(self, sim, initial_pos=None):
         super().__init__(sim)
         self.sim = sim
 
@@ -229,10 +233,13 @@ class Franka_robot(Base_robot):
         G6 = np.diag([0.001964, 0.004354, 0.005433, 1.666555, 1.666555, 1.666555])
         G7 = np.diag([0.012516, 0.010027, 0.004815, 7.35522e-01, 7.35522e-01, 7.35522e-01])
         self.inertia_list = np.array([G1, G2, G3, G4, G5, G6, G7])
-
+        # if ~isinstance(initial_pos, type(None)):
+        #     print(f"initial pos: {initial_pos}")
+        #     self.sim.data.qpos[0:7] = initial_pos
+        #     self.sim.forward()
 
     def set_joint_torque(self, jfrc):
-        self.sim.data.ctrl[0:7] = jfrc #the sequence is as same as xml model
+        self.sim.data.ctrl[0:7] = jfrc  # the sequence is as same as xml model
 
     @property
     def torque_compensation(self):
@@ -286,6 +293,11 @@ class Franka_robot(Base_robot):
 
         return np.array([self.M01, self.M12, self.M23, self.M34, self.M45, self.M56, self.M67, self.M78])
 
+
+    def set_initial_pos(self, initial_pos):
+        print("set initial pose")
+        self.sim.data.ctrl[0:7] = initial_pos
+        self.sim.step()
 
 
     def pose_inv(self, pose):

@@ -9,24 +9,24 @@ class Dynamics(object):
         self.robot = robot
         self.Mlist = self.robot.get_link_M()
 
-    def id(self,thetalist,dthetalist,ddthetalist,Ftip):
+    def id(self,thetalist, dthetalist, ddthetalist,Ftip):
         Mlist = self.Mlist
         Glist = self.robot.inertia_list
         g = np.array([0, 0, -9.8])
         j_tor_target = core.InverseDynamics(thetalist, dthetalist, ddthetalist, g, Ftip, Mlist, Glist, self.robot.screw)
         return j_tor_target
 
-    def gravityforces(self,thetalist):
+    def gravityforces(self, thetalist):
         Mlist = self.Mlist
         Glist = self.robot.inertia_list
         g = np.array([0, 0, -10])
         torque = core.GravityForces(thetalist, g, Mlist, Glist, self.robot.screw)
         return torque
 
-    def Quadraticforces(self,thetalist,dthetalist):
+    def Quadraticforces(self, thetalist, dthetalist):
         Mlist = self.Mlist
         Glist = self.robot.inertia_list
-        torque = core.VelQuadraticForces(thetalist,dthetalist, Mlist, Glist, self.robot.screw)
+        torque = core.VelQuadraticForces(thetalist, dthetalist, Mlist, Glist, self.robot.screw)
         return torque
 
     def MassMatrix(self):

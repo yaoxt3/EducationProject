@@ -76,68 +76,73 @@
         <mesh file="./meshes/collision/finger.stl" name="finger_col" scale="1.75 1 1.75"/>
         <mesh file="./meshes/collision/finger.stl" name="finger_viz" scale="1.75 1 1.75"/>
 
-<!--        <texture name="light_wood_v3" file="./textures/light_wood_v3.png" type="2d"/>-->
-<!--        <material shininess=".1" name="light_wood_v3" texture="light_wood_v3" specular="0.4"/>-->
+        <texture name="light_wood_v3" file="./textures/light_wood_v3.png" type="2d"/>
+        <material shininess=".1" name="light_wood_v3" texture="light_wood_v3" specular="0.4"/>
+
+        <texture name="marble" file="./textures/marble.png" type="2d"/>
+        <material shininess=".1" name="marble" texture="marble" specular="0.4"/>
     </asset>
     <worldbody>
-        <light diffuse="0.8 0.8 0.8" dir="-0.301511 -0.301511 -0.904534" specular="0.3 0.3 0.3" pos="1 1 3" castshadow="false"/>
-        <light diffuse="0.8 0.8 0.8" dir="-0.301511 0.301511 -0.904534" specular="0.3 0.3 0.3" pos="1 -1 3" castshadow="false"/>
-        <light diffuse="0.8 0.8 0.8" dir="0.316228 0 -0.948683" specular="0.3 0.3 0.3" pos="-1 0 3" castshadow="false"/>
+        <light diffuse="0.8 0.8 0.8" dir="-0.301511 -0.301511 -0.904534" specular="0.3 0.3 0.3" pos="1.5 1 3" castshadow="false"/>
+        <light diffuse="0.8 0.8 0.8" dir="-0.301511 0.301511 -0.904534" specular="0.3 0.3 0.3" pos="1.5 -1 3" castshadow="false"/>
+        <light diffuse="0.8 0.8 0.8" dir="0.316228 0 -0.948683" specular="0.3 0.3 0.3" pos="-1. 0 3" castshadow="false"/>
+        <light diffuse="0.8 0.8 0.8" dir="0.316228 0 -0.948683" specular="0.3 0.3 0.3" pos="-1. -1 3" castshadow="false"/>
+
         <geom material="MatGnd" name="ground" size="5 5 10" type="plane"/>
 
-        <geom name="table" pos="1. 0 0.26" type="plane" size="0.8 2 0.3" group = "1" rgba=".5 .5 .5 .9" />
-
-
+        <geom material="light_wood_v3" name="table" pos="0.87 0 0.13" type="box" size="0.8 2 0.13" group = "1" rgba=".5 .5 .5 1" />
 
         <body name="base" pos="0 0 0">
             <body name="controller_box" pos="0 0 0">
                 <inertial diaginertia="1.71363 1.27988 0.809981" mass="46.64" pos="-0.325 0 -0.38"/>
-                <geom pos="-0.1 0 0.13" size="0.3 0.3 0.13" type="box" name="controller_box_col"/>
+                <geom material="marble" pos="-0.13 0 0.13" size="0.2 0.3 0.13" type="box" name="controller_box_col" rgba="0.5 1.0 1.0 1"/>
             </body>
             <body name="panda0_link0" pos="0 0 0.26">
                 <inertial diaginertia="0.122527 0.11364 0.0827785" mass="2.91242" pos="0 0 0"/>
-                <geom class="panda_viz" mesh="link0_viz"/>
-                <geom class="panda_col" mesh="link0_col"/>
+                <geom name="link0_viz" class="panda_viz" mesh="link0_viz"/>
+                <geom name="link0_col" class="panda_col" mesh="link0_col"/>
                 <body name="panda0_link1" pos="0 0 0.333">
                     <inertial diaginertia="0.70337 0.70661 0.009117" mass="4.970684" pos="0.003875 0.002081 0"/>
                     <joint axis="0 0 1" class="panda_arm" name="panda0_joint1" pos="0 0 0" range="-2.8973 2.8973"/>
-                    <geom class="panda_viz" mesh="link1_viz"/>
-                    <geom class="panda_col" mesh="link1_col"/>
+                    <geom name="link1_viz" class="panda_viz" mesh="link1_viz"/>
+                    <geom name="link1_col" class="panda_col" mesh="link1_col"/>
                     <body name="panda0_link2" pos="0 0 0" quat="0.707107 -0.707107 0 0">
                         <inertial diaginertia="0.007962 0.02811 0.025995" mass="0.646926" pos="-3.141e-03 -2.872e-02 3.495e-03"/>
                         <joint axis="0 0 1" class="panda_arm" name="panda0_joint2" pos="0 0 0" range="-1.7628 1.7628"/>
-                        <geom class="panda_viz" mesh="link2_viz"/>
-                        <geom class="panda_col" mesh="link2_col"/>
+                        <geom name="link2_viz" class="panda_viz" mesh="link2_viz"/>
+                        <geom name="link2_col" class="panda_col" mesh="link2_col"/>
                         <body name="panda0_link3" pos="0 -0.316 0" quat="0.707107 0.707107 0 0">
                             <inertial diaginertia="0.037242 0.036155 0.01083" mass="3.228604" pos="2.7518e-02 3.9252e-02 -6.6502e-02"/>
                             <joint axis="0 0 1" class="panda_arm" name="panda0_joint3" pos="0 0 0" range="-2.8973 2.8973"/>
-                            <geom class="panda_viz" mesh="link3_viz"/>
+                            <geom name="link3_viz" class="panda_viz" mesh="link3_viz"/>
                             <geom class="panda_grey_viz" mesh="link3_dark_viz" pos="0 .001 0"/>
-                            <geom class="panda_col" mesh="link3_col"/>
+                            <geom name="link3_col" class="panda_col" mesh="link3_col"/>
                             <body name="panda0_link4" pos="0.0825 0 0" quat="0.707107 0.707107 0 0">
                                 <inertial diaginertia="0.025853 0.019552 0.028323" mass="3.587895" pos="-5.317e-02 1.04419e-01 2.7454e-02"/>
                                 <joint axis="0 0 1" class="panda_arm" name="panda0_joint4" pos="0 0 0" range="-3.0718 -0.4"/>
-                                <geom class="panda_viz" mesh="link4_viz"/>
+                                <geom name="link4_viz" class="panda_viz" mesh="link4_viz"/>
                                 <geom class="panda_grey_viz" mesh="link4_dark_viz"/>
-                                <geom class="panda_col" mesh="link4_col"/>
+                                <geom name="link4_col" class="panda_col" mesh="link4_col"/>
                                 <body name="panda0_link5" pos="-0.0825 0.384 0" quat="0.707107 -0.707107 0 0">
                                     <inertial diaginertia="0.035549 0.029474 0.008627" mass="1.225946" pos="-1.1953e-02 4.1065e-02 -3.8437e-02"/>
                                     <joint axis="0 0 1" class="panda_forearm" name="panda0_joint5" pos="0 0 0" range="-2.8973 2.8973"/>
-                                    <geom class="panda_viz" mesh="link5_viz"/>
+                                    <geom name="link5_viz" class="panda_viz" mesh="link5_viz"/>
                                     <geom class="panda_grey_viz" mesh="link5_dark_viz"/>
-                                    <geom class="panda_col" mesh="link5_col"/>
+                                    <geom name="link5_col" class="panda_col" mesh="link5_col"/>
                                     <body name="panda0_link6" pos="0 0 0" quat="0.707107 0.707107 0 0">
                                         <inertial diaginertia="0.001964 0.004354 0.005433" mass="1.666555" pos="6.0149e-02 -1.4117e-02 -1.0517e-02"/>
                                         <joint axis="0 0 1" class="panda_forearm" name="panda0_joint6" pos="0 0 0" range="-1.6573 2.1127"/>
-                                        <geom class="panda_viz" mesh="link6_viz"/>
+                                        <geom name="link6_viz"  class="panda_viz" mesh="link6_viz"/>
                                         <geom class="panda_grey_viz" mesh="link6_dark_viz"/>
-                                        <geom class="panda_col" mesh="link6_col"/>
+                                        <geom name="link6_col"  class="panda_col" mesh="link6_col"/>
                                         <body name="panda0_link7" pos="0.088 0 0" quat="0.707107 0.707107 0 0">
                                             <inertial diaginertia="0.012516 0.010027 0.004815" mass="7.35522e-01" pos="1.0517e-02 -4.252e-03 6.1597e-02"/>
                                             <joint axis="0 0 1" class="panda_forearm" name="panda0_joint7" pos="0 0 0" range="-2.8973 2.8973"/>
-                                            <geom class="panda_viz" mesh="link7_viz"/>
+                                            <site name="joint_contact" quat="1 0 0 0" pos="0 0 0.106" type="cylinder" size="0.045 0.001" rgba="1 0 1 0.8" />
+                                            <site name="sensor_range" quat="1 0 0 0" pos="0 0 0.15" type="cylinder" size="0.04 0.04" rgba="0 1 1 0.2" />
+                                            <geom name="link7_viz" class="panda_viz" mesh="link7_viz"/>
                                             <geom class="panda_grey_viz" mesh="link7_dark_viz"/>
-                                            <geom class="panda_col" mesh="link7_col"/>
+                                            <geom name="link7_col" class="panda_col" mesh="link7_col"/>
                                         </body>
                                     </body>
                                 </body>
@@ -148,26 +153,25 @@
             </body>
         </body>
 
-<!--        <body name="object" pos="0.1 2 0.15">-->
-<!--            <joint axis="1 0 0" damping="0.1" name="slide0" pos="0 0 0" type="slide"/>-->
-<!--            <joint axis="0 1 0" damping="0.1" name="slide1" pos="0 0 0" type="slide"/>-->
-<!--            <joint axis="0 0 1" damping="1" name="slide2" pos="0 0 0" type="slide"/>-->
-<!--            <geom mass="10.0" pos="0 0 0" rgba="1 0 0 1" size="0.3 0.2 0.15" type="box"/>-->
-<!--        </body>-->
-        <body name="object" pos="1.2 0 0.3" quat="1 0 0 0" >
-            <inertial pos="0 0 0" mass=".155" diaginertia="0.0003686049833333333 0.001255996129167 0.001460916979167" />
-            <joint name="object" type="free" limited="false" />
-            <geom name="object" type="box" size="0.15075 0.0745 0.0398" group="1" rgba=".9 0 0 1" />
-            <site name="obj_front" pos="-0.15074 0 0" quat="1 0 0 0"          type="box" size="1e-5 0.04 0.02" group="2" rgba="1 1 0 1" />
-            <site name="obj_right" pos="0 -0.07449 0" quat="0.707 0 0 0.707"  type="box" size="1e-5 0.10 0.02" group="2" rgba="1 1 0 1" />
-            <site name="obj_left"  pos="0 +0.07449 0" quat="0.707 0 0 -0.707" type="box" size="1e-5 0.10 0.02" group="2" rgba="1 1 0 1" />
-            <site name="obj_rear"  pos="+0.15074 0 0" quat="0 0 0 1"          type="box" size="1e-5 0.04 0.02" group="2" rgba="1 1 0 1" />
+        <body name="object" pos="0.65 -1.5 0.37" quat="1 0 0 0" >
+            <inertial pos="0 0 0" mass="3" diaginertia="0.0003686049833333333 0.001255996129167 0.001460916979167" />
+            <joint axis="1 0 0" name="box:slidex" damping="0.1" type="slide"/>
+            <joint axis="0 1 0" name="box:slidey" damping="0.1" type="slide"/>
+<!--            <joint axis="0 0 1" name="box:slidez" damping="0.5" type="slide"/>-->
+            <geom name="object" type="box" size="0.16 0.08 0.1" group="1" rgba=".9 0 0 1" />
+<!--            <site name="obj_front" pos="-0.1605 0 0" quat="1 0 0 0"          type="box" size="1e-5 0.04 0.09" group="2" rgba="1 1 0 0.5" />-->
+<!--            <site name="obj_right" pos="0 -0.0805 0" quat="0.707 0 0 0.707"  type="box" size="1e-5 0.10 0.09" group="2" rgba="0 1 0 0.5" />-->
+            <site name="obj_contact"  pos="0 +0.0805 0" quat="0.707 0 0 -0.707" type="box" size="1e-5 0.10 0.09" group="2" rgba="1 0 1 0.5" />
+<!--            <site name="obj_rear"  pos="+0.1605 0 0" quat="0 0 0 1"          type="box" size="1e-5 0.04 0.09" group="2" rgba="1 1 0 0.5" />-->
             <!-- Point contact sites -->
             <!-- <site name="obj_front" pos="-0.15075 0 0" quat="1 0 0 0"          type="sphere" size="1e-3" group="2" rgba="1 1 0 1" /> -->
             <!-- <site name="obj_right" pos="0 -0.0745 0"  quat="0.707 0 0 0.707"  type="sphere" size="1e-3" group="2" rgba="1 1 0 1" /> -->
             <!-- <site name="obj_left"  pos="0 +0.0745 0"  quat="0.707 0 0 -0.707" type="sphere" size="1e-3" group="2" rgba="1 1 0 1" /> -->
             <!-- <site name="obj_rear"  pos="+0.15075 0 0" quat="0 0 0 1"          type="sphere" size="1e-3" group="2" rgba="1 1 0 1" /> -->
         </body>
+
+        <site name="slide_bar" pos="0.65 0 0.27" type="box" size="0.05 2 0.01" rgba=".0 .0 .5 .15"/>
+
     </worldbody>
     <actuator>
         <general ctrllimited="true" ctrlrange="-80 80" joint="panda0_joint1" name="panda0_joint1"/>
@@ -177,8 +181,9 @@
         <general ctrllimited="true" ctrlrange="-80 80" joint="panda0_joint5" name="panda0_joint5"/>
         <general ctrllimited="true" ctrlrange="-12 12" joint="panda0_joint6" name="panda0_joint6"/>
         <general ctrllimited="true" ctrlrange="-12 12" joint="panda0_joint7" name="panda0_joint7"/>
-<!--        <motor gear="200.0" joint="slide0"/>-->
-<!--        <motor gear="200.0" joint="slide1"/>-->
+        <motor gear="100.0" joint="box:slidex"/>
+        <motor gear="100.0" joint="box:slidey"/>
+<!--        <motor gear="100.0" joint="box:slidez"/>-->
     </actuator>
     <sensor>
         <jointpos joint="panda0_joint1" name="fr_arm_jp1"/>
@@ -188,6 +193,10 @@
         <jointpos joint="panda0_joint5" name="fr_arm_jp5"/>
         <jointpos joint="panda0_joint6" name="fr_arm_jp6"/>
         <jointpos joint="panda0_joint7" name="fr_arm_jp7"/>
+        <jointpos joint="box:slidex" name="box_jpx"/>
+        <jointpos joint="box:slidey" name="box_jpy"/>
+<!--        <jointpos joint="box:slidez" name="box_jpz"/>-->
+
         <jointvel joint="panda0_joint1" name="fr_arm_jv1"/>
         <jointvel joint="panda0_joint2" name="fr_arm_jv2"/>
         <jointvel joint="panda0_joint3" name="fr_arm_jv3"/>
@@ -195,6 +204,10 @@
         <jointvel joint="panda0_joint5" name="fr_arm_jv5"/>
         <jointvel joint="panda0_joint6" name="fr_arm_jv6"/>
         <jointvel joint="panda0_joint7" name="fr_arm_jv7"/>
+        <jointvel joint="box:slidex" name="box_jvx"/>
+        <jointvel joint="box:slidey" name="box_jvy"/>
+<!--        <jointvel joint="box:slidez" name="box_jvz"/>-->
+
         <actuatorfrc actuator="panda0_joint1" name="fr_arm_jf1"/>
         <actuatorfrc actuator="panda0_joint2" name="fr_arm_jf2"/>
         <actuatorfrc actuator="panda0_joint3" name="fr_arm_jf3"/>
@@ -204,6 +217,6 @@
         <actuatorfrc actuator="panda0_joint7" name="fr_arm_jf7"/>
     </sensor>
 <!--    <keyframe>-->
-<!--        <key qpos="0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0" qvel="0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0" time="0.0"/>-->
+<!--        <key qpos="0.0 0.74 0.0 -1.7 -1.62 1.6 0.0 0.0 0.0 0.0" qvel="0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0" time="0.0"/>-->
 <!--    </keyframe>-->
 </mujoco>

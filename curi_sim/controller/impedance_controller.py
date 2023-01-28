@@ -2,22 +2,21 @@
 import numpy as np
 import numpy
 import math
-from . import core,dynamics
+from . import core, dynamics
 
 
 _EPS = numpy.finfo(float).eps * 4.0
 
 
 class JointPositionImpedanceGenerator(object):
-    def __init__(self,kp,kd,robot):
+    def __init__(self, kp, kd, robot):
         self.kp = kp
         self.kd = kd
         self.robot = robot
         self.dynamics = dynamics.Dynamics(robot)
+        self.min_diff = 0.07
 
-
-
-    def update_goal_pos(self,pose_now,target):
+    def update_goal_pos(self, pose_now, target):
         goal_pose = np.zeros((4, 4))
         goal_pose[3,3]=1
         # pose_now = self.robot.pose_in_base_from_name('panda0_link7')
@@ -26,7 +25,7 @@ class JointPositionImpedanceGenerator(object):
         goal_pose[:3, 3] = target[:3, 3] * 0.05 + (1 - 0.05) * pose_now[:3, 3]
         return goal_pose
 
-    def impedance_controller_wrench(self,target):
+    def impedance_controller_wrench(self, target):
         """
         Calculates the torques required to reach the desired setpoint
         Returns:
@@ -35,17 +34,17 @@ class JointPositionImpedanceGenerator(object):
         pose_now = self.robot.eef_pose_in_base()
 
         # Update state
-        goal_pose = self.update_goal_pos(pose_now,target)
+        goal_pose = self.update_goal_pos(pose_now, target)
         error = np.zeros((4, 4))
         error[3, 3] = 1
         error[:3, :3] = core.RotInv(goal_pose[:3, :3]).dot(pose_now[:3, :3])
         error[:3, 3] = pose_now[:3, 3] - goal_pose[:3, 3]
         se3 = core.MatrixLog6(error)
         twist = core.se3ToVec(se3)
-        wrench = np.zeros((6))#twist
+        wrench = np.zeros((6))  #twist
 
         wrench[:3] = twist[3:]
-        wrench[3:] = twist[:3]# wrench
+        wrench[3:] = twist[:3]  #wrench
         print('wrench', wrench)
         J_S = core.JacobianSpace(self.robot.screw, self.robot.joint_pos)
         wrench = -self.kp.dot(wrench) - self.kd.dot(J_S.dot(self.robot.joint_vel))
@@ -61,8 +60,11 @@ class JointPositionImpedanceGenerator(object):
     def impedance_controller_joint(self):
         # This is a normal interpolation
         su_flag = False
-        dx = (self.target - self.robot.joint_pos) *0.01
-        print('self.step',self.target - self.robot.joint_pos)
+        dx = (self.target - self.robot.joint_pos) * 0.01
+
+        # print('self.diff', self.target - self.robot.joint_pos)
+        # print('self.target', self.target)
+        # print('self.joint_pos', self.robot.joint_pos)
         desired_qpos = self.robot.joint_pos + dx
 
         # torques = pos_err * kp + vel_err * kd
@@ -72,17 +74,17 @@ class JointPositionImpedanceGenerator(object):
                           + np.multiply(vel_pos_error, self.kd))
         MassMatrix = self.dynamics.MassMatrix()
         # Return desired torques plus gravity compensations
-        desired_torque =  MassMatrix.dot(desired_torque) + self.dynamics.gravityforces(self.robot.joint_pos)#self.dynamics.gravityforces(self.robot.joint_pos) #+ self.dynamics.Quadraticforces(self.robot.joint_pos,self.robot.joint_vel)
-        print(np.absolute(self.target - self.robot.joint_pos) < 0.1)
-        print('\n')
+        desired_torque = MassMatrix.dot(desired_torque) + self.dynamics.gravityforces(self.robot.joint_pos)  #self.dynamics.gravityforces(self.robot.joint_pos) #+ self.dynamics.Quadraticforces(self.robot.joint_pos,self.robot.joint_vel)
+        print(np.absolute(self.target - self.robot.joint_pos) < self.min_diff)
+        # print('\n')
         #print(self.robot.torque_compensation)  #
         #print(self.dynamics.gravityforces(self.robot.joint_pos))#
-        print('\n')
-        if (np.absolute(self.target - self.robot.joint_pos) < 0.1).all():
+        # print('\n')
+        if (np.absolute(self.target - self.robot.joint_pos) < self.min_diff).all():
             print((self.target - self.robot.joint_pos))
             su_flag = True
 
-        return desired_torque,su_flag
+        return desired_torque, su_flag
 
 class CuriJointPositionImpedanceGenerator(object):
     def __init__(self,kp,kd,robot):

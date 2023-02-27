@@ -62,12 +62,12 @@ class JointPositionImpedanceGenerator(object):
         self.target = target
 
     def get_target(self):
-        return self.target
+        return self.target.copy()
 
     def impedance_controller_joint(self):
         # This is a normal interpolation
         su_flag = False
-        dx = (self.target - self.robot.joint_pos) * 0.01
+        dx = (self.target - self.robot.joint_pos) * 0.02
 
         # print('self.diff', self.target - self.robot.joint_pos)
         # print('self.target', self.target)

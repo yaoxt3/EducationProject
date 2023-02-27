@@ -47,10 +47,10 @@ class Base_env(object):
         return self.get_site_velocity(ee_site_id)
 
     def joint_position(self):
-        return self.sim.data.qpos
+        return self.sim.data.qpos.copy()
 
     def joint_velocities(self):
-        return self.sim.data.qvel
+        return self.sim.data.qvel.copy()
 
     def set_initial_pos(self, initial_pos):
         self.sim.data.qpos[0:7] = initial_pos

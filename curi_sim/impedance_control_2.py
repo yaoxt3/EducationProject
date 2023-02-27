@@ -15,6 +15,8 @@ from utils.tf import quatdiff_in_euler
 
 
 
+
+
 def mujocoJointFunc():
     global env, robot, joint_controller
     rospy.init_node('talker', anonymous=True)
@@ -105,9 +107,6 @@ D_pos = 2.*np.sqrt(P_pos)
 D_ori = 2.
 # -----------------------------------------
 
-# impedance control based on position
-# phase 1: robot pre-move
-# phase 2: object and robot contact
 def compute_ts_force(curr_pos, curr_ori, goal_pos, goal_ori, curr_vel, curr_omg, goal_vel):
     delta_pos = (goal_pos - curr_pos).reshape([3, 1])
     delta_ori = quatdiff_in_euler(curr_ori, goal_ori).reshape([3, 1]) # 这个是计算角度的不同，可能输入变量不是3×1的矩阵
@@ -169,7 +168,7 @@ def impedance_control_integration(ctrl_rate):
             for i in range(env.sim.data.ncon):
                 # Note that the contact array has more than `ncon` entries,
                 # so be careful to only read the valid entries.
-                contact = env.sim.data.contact[i]  
+                contact = env.sim.data.contact[i]  # 这第几个接触力
                 geom2_body = env.sim.model.geom_bodyid[env.sim.data.contact[i].geom2]
                 # Use internal functions to read out mj_contactFor
                 c_array = np.zeros(6, dtype=np.float64)
@@ -181,6 +180,9 @@ def impedance_control_integration(ctrl_rate):
 
             print("Force Norm", force_norm)
             while force_norm > 0:
+                if count == 0:
+                    target_pos, target_ori = env.get_ee_pose()
+                #     joint_controller.set_target(env.joint_position()[:7])
                 count += 1
                 break
 
@@ -191,6 +193,18 @@ def impedance_control_integration(ctrl_rate):
                     target_pos[1] += 0.05
                     stop_flag = 1
                 break
+
+            # if count > 0:
+            #     impedance_acc_des, flag = joint_controller.impedance_controller_joint()
+            #     robot.set_joint_torque(impedance_acc_des)
+            # else:
+            #     F, error = compute_ts_force(curr_pos, curr_ori, target_pos, original_ori, curr_vel, curr_omg, target_vel)
+            #     impedance_acc_des = np.dot(env.get_ee_jacobian("ee_joint").T, F).flatten().tolist()
+            #
+            #     MassMatrix = joint_controller.dynamics.MassMatrix()
+            #     # Return desired torques plus gravity compensations
+            #     impedance_acc_des = MassMatrix.dot(impedance_acc_des) + joint_controller.dynamics.gravityforces(robot.joint_pos)
+            #     robot.set_joint_torque(impedance_acc_des)
 
             F, error = compute_ts_force(curr_pos, curr_ori, target_pos, original_ori, curr_vel, curr_omg, target_vel)
             impedance_acc_des = np.dot(env.get_ee_jacobian("ee_joint").T, F).flatten().tolist()

@@ -90,13 +90,10 @@ def impedance_control_integration(ctrl_rate):
 
             print("Force Norm", force_norm)
             while force_norm > 0:
+                if count == 0:
+                    target_joint = env.joint_position()[:7]
+                    switch_controller = 2
                 count += 1
-                break
-
-            while count == 1:
-                print(f"set target:{env.joint_position()[:7]}")
-                target_joint = env.joint_position()[:7]
-                switch_controller = 2
                 break
 
             # if object's velocity < 0.02, stop the robot

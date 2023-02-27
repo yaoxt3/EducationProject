@@ -18,7 +18,7 @@ from utils.tf import quatdiff_in_euler
 # Task-space controller parameters
 # stiffness gains
 P_pos = 1500.
-P_ori = 600.
+P_ori = 450.
 # damping gains
 D_pos = 2.*np.sqrt(P_pos)
 D_ori = 2.
@@ -62,7 +62,7 @@ def impedance_control_integration(ctrl_rate):
             curr_vel, curr_omg = env.get_ee_velocity() # get linear velocity and angular velocity
 
             target_vel[1] = y_target_vel
-            delta_vel = y_target_vel * env.sim.model.opt.timestep * step*2
+            delta_vel = y_target_vel * env.sim.model.opt.timestep * step
             if switch_controller == 1:
                 target_pos[1] = curr_ee[1] + delta_vel
 
@@ -170,19 +170,7 @@ if __name__ == "__main__":
 
     pub_d = rospy.Publisher('distance', Float32, queue_size=10)  # the distance between object and robot's end effector
     pub_f = rospy.Publisher('contact_force', Float32, queue_size=10)  # the contact force
-
-    # publish the velocity of object
     pub_vel = rospy.Publisher('object_velocity', Float32, queue_size=10)
-
-    ctrl_rate = 1 / env.sim.model.opt.timestep
-    render_rate = 100
-    curr_ee, original_ori = env.get_ee_pose() # end effector's pose
-    curr_vel_ee, curr_omg_ee = env.get_ee_velocity() # end effector's velocity
-    target_pos = curr_ee.copy()
-    target_y_vel = np.linspace(curr_vel_ee[1], curr_vel_ee[1] + 0.4, 100).tolist()
-    y_target_vel = curr_vel_ee[1]
-
-    target_vel = curr_vel_ee
 
     force_norm = 0
     env.sim.data.xfrc_applied[env.sim.model.body_name2id("object"), :] = np.array([0, 40, 0, 0, 0, 0])
@@ -198,17 +186,25 @@ if __name__ == "__main__":
         joint_pos = env.get_site_pos("ee_joint")
         object_pos = env.get_site_pos("obj_contact")
         dis = np.sqrt(np.sum(np.square(joint_pos - object_pos)))
-        if dis <= 1.:
+        if dis <= 1:
             env.sim.data.xfrc_applied[env.sim.model.body_name2id("object"), :] = np.array([0, 0, 0, 0, 0, 0])
-        if dis < 0.4:
+        if dis < 0.3:
             break
         sleep(0.001)
-    print("cancel force")
-    if dis <= 0.4:
-        print("run_controller True")
+
+    if dis <= 0.3:
         run_controller = True
     else:
         run_controller = False
+
+    ctrl_rate = 1 / env.sim.model.opt.timestep
+    render_rate = 100
+    curr_ee, original_ori = env.get_ee_pose()  # end effector's pose
+    curr_vel_ee, curr_omg_ee = env.get_ee_velocity()  # end effector's velocity
+    target_pos = curr_ee.copy()
+    target_y_vel = np.linspace(curr_vel_ee[1], curr_vel_ee[1] + 0.4, 100).tolist()
+    y_target_vel = curr_vel_ee[1]
+    target_vel = curr_vel_ee.copy()
 
     ctrl_thread = threading.Thread(target=impedance_control_integration, args=[ctrl_rate])  # 传递的是固定参数，这两个是交错执行的，先执行上面再执行下面
     ctrl_thread.start()

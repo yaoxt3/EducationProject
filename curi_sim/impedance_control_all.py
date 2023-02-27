@@ -71,7 +71,6 @@ def impedance_control_integration(ctrl_rate):
             dis = np.sqrt(np.sum(np.square(joint_pos[1] - object_pos[1])))
             pub_d.publish(dis)
 
-            # vel = math.sqrt(env.joint_velocities()[7] ** 2 + env.joint_velocities()[8] ** 2)
             vel = env.joint_velocities()[7]
             print(f"object velocity:{vel}")
             pub_vel.publish(vel)
@@ -87,6 +86,7 @@ def impedance_control_integration(ctrl_rate):
                 if env.sim.model.geom_id2name(contact.geom1) == "link7_col" or \
                         env.sim.model.geom_id2name(contact.geom2) == "link7_col":
                     force_norm = np.sqrt(np.sum(np.square(c_array[0:3])))
+            pub_f.publish(force_norm)
 
             print("Force Norm", force_norm)
             while force_norm > 0:
@@ -98,31 +98,30 @@ def impedance_control_integration(ctrl_rate):
                 target_joint = env.joint_position()[:7]
                 switch_controller = 2
                 break
-            
-            while vel < 0.02:
+
+            # if object's velocity < 0.02, stop the robot
+            while vel < 0.02 and switch_controller == 2:
                 target_joint = env.joint_position()[:7]
+                switch_controller = 3
                 break
 
-            if count > 0:
+            if count > 0: # controller 1, in-contact phase
+                print(f"target_joint: {target_joint}")
                 dx = (target_joint - env.joint_position()[:7]) * 0.02
                 desired_qpos = env.joint_position()[:7] + dx
                 position_error = desired_qpos - env.joint_position()[:7]
                 vel_pos_error = -env.joint_velocities()[:7]
                 desired_torque = (np.multiply(np.array(position_error), np.array(kp))
                                   + np.multiply(vel_pos_error, kd))
-            else:
+                # target_pos = curr_pos # update target position for rendering
+            else: # controller 2, pre-move phase
                 F, error = compute_ts_force(curr_pos, curr_ori, target_pos, original_ori, curr_vel, curr_omg, target_vel)
                 desired_torque = np.dot(env.get_ee_jacobian("ee_joint").T, F).flatten().tolist()
 
-
-            MassMatrix = joint_controller.dynamics.MassMatrix()
             # Return desired torques plus gravity compensations
+            MassMatrix = joint_controller.dynamics.MassMatrix()
             desired_torque = MassMatrix.dot(desired_torque) + joint_controller.dynamics.gravityforces(robot.joint_pos)
             robot.set_joint_torque(desired_torque)
-
-
-            if error <= threshold:
-                break
 
             env.sim.step()
 
@@ -222,9 +221,7 @@ if __name__ == "__main__":
     while i < len(target_y_vel):
 
         y_target_vel = target_y_vel[i]
-        print(f"y_target_vel:{y_target_vel}")
         robot_pos, robot_ori = env.get_ee_pose()
-        elapsed_r = time.time() - now_r
         render_frame(env.view, robot_pos, robot_ori)
         render_frame(env.view, target_pos, original_ori, alpha=0.2)
         elapsed_r = time.time() - now_r
@@ -233,7 +230,6 @@ if __name__ == "__main__":
         #     now_r = time.time()
         i += 1
         env.render()
-
 
     print("Done controlling. Press Ctrl+C to quit.")
     while True:

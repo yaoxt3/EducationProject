@@ -138,11 +138,13 @@
                                         <body name="panda0_link7" pos="0.088 0 0" quat="0.707107 0.707107 0 0">
                                             <inertial diaginertia="0.012516 0.010027 0.004815" mass="7.35522e-01" pos="1.0517e-02 -4.252e-03 6.1597e-02"/>
                                             <joint axis="0 0 1" class="panda_forearm" name="panda0_joint7" pos="0 0 0" range="-2.8973 2.8973"/>
-                                            <site name="joint_contact" quat="1 0 0 0" pos="0 0 0.106" type="cylinder" size="0.045 0.001" rgba="1 0 1 0.8" />
+                                            <site name="ee_joint" quat="1 0 0 0" pos="0 0 0.106" type="cylinder" size="0.045 0.001" rgba="1 0 1 0.8" />
                                             <site name="sensor_range" quat="1 0 0 0" pos="0 0 0.15" type="cylinder" size="0.04 0.04" rgba="0 1 1 0.2" />
+                                            <geom name="ee_plane" quat="1 0 0 0" pos="0 0 0.104" type="cylinder" size="0.06 0.001" rgba="1 1 1 1"/>
                                             <geom name="link7_viz" class="panda_viz" mesh="link7_viz"/>
                                             <geom class="panda_grey_viz" mesh="link7_dark_viz"/>
                                             <geom name="link7_col" class="panda_col" mesh="link7_col"/>
+
                                         </body>
                                     </body>
                                 </body>
@@ -153,9 +155,9 @@
             </body>
         </body>
 
-        <body name="object" pos="0.65 -1.5 0.37" quat="1 0 0 0" >
+        <body name="object" pos="0.6 -1.5 0.37" quat="1 0 0 0" >
             <inertial pos="0 0 0" mass="3" diaginertia="0.0003686049833333333 0.001255996129167 0.001460916979167" />
-            <joint axis="1 0 0" name="box:slidex" damping="0.1" type="slide"/>
+<!--            <joint axis="1 0 0" name="box:slidex" damping="0.1" type="slide"/>-->
             <joint axis="0 1 0" name="box:slidey" damping="0.1" type="slide"/>
 <!--            <joint axis="0 0 1" name="box:slidez" damping="0.5" type="slide"/>-->
             <geom name="object" type="box" size="0.16 0.08 0.1" group="1" rgba=".9 0 0 1" />
@@ -170,7 +172,7 @@
             <!-- <site name="obj_rear"  pos="+0.15075 0 0" quat="0 0 0 1"          type="sphere" size="1e-3" group="2" rgba="1 1 0 1" /> -->
         </body>
 
-        <site name="slide_bar" pos="0.65 0 0.27" type="box" size="0.05 2 0.01" rgba=".0 .0 .5 .15"/>
+        <site name="slide_bar" pos="0.6 0 0.27" type="box" size="0.05 2 0.01" rgba=".0 .0 .5 .15"/>
 
     </worldbody>
     <actuator>
@@ -181,7 +183,7 @@
         <general ctrllimited="true" ctrlrange="-80 80" joint="panda0_joint5" name="panda0_joint5"/>
         <general ctrllimited="true" ctrlrange="-12 12" joint="panda0_joint6" name="panda0_joint6"/>
         <general ctrllimited="true" ctrlrange="-12 12" joint="panda0_joint7" name="panda0_joint7"/>
-        <motor gear="100.0" joint="box:slidex"/>
+<!--        <motor gear="100.0" joint="box:slidex"/>-->
         <motor gear="100.0" joint="box:slidey"/>
 <!--        <motor gear="100.0" joint="box:slidez"/>-->
     </actuator>
@@ -193,7 +195,7 @@
         <jointpos joint="panda0_joint5" name="fr_arm_jp5"/>
         <jointpos joint="panda0_joint6" name="fr_arm_jp6"/>
         <jointpos joint="panda0_joint7" name="fr_arm_jp7"/>
-        <jointpos joint="box:slidex" name="box_jpx"/>
+<!--        <jointpos joint="box:slidex" name="box_jpx"/>-->
         <jointpos joint="box:slidey" name="box_jpy"/>
 <!--        <jointpos joint="box:slidez" name="box_jpz"/>-->
 
@@ -204,7 +206,7 @@
         <jointvel joint="panda0_joint5" name="fr_arm_jv5"/>
         <jointvel joint="panda0_joint6" name="fr_arm_jv6"/>
         <jointvel joint="panda0_joint7" name="fr_arm_jv7"/>
-        <jointvel joint="box:slidex" name="box_jvx"/>
+<!--        <jointvel joint="box:slidex" name="box_jvx"/>-->
         <jointvel joint="box:slidey" name="box_jvy"/>
 <!--        <jointvel joint="box:slidez" name="box_jvz"/>-->
 

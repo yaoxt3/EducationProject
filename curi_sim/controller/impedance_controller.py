@@ -14,12 +14,14 @@ class JointPositionImpedanceGenerator(object):
         self.kd = kd
         self.robot = robot
         self.dynamics = dynamics.Dynamics(robot)
-        self.min_diff = 0.07
+        self.min_diff = 0.05
 
     def update_goal_pos(self, pose_now, target):
         goal_pose = np.zeros((4, 4))
         goal_pose[3,3]=1
         # pose_now = self.robot.pose_in_base_from_name('panda0_link7')
+        print(f"pose_now:{pose_now}")
+        print(f"target:{target}")
         goal_pose[:3, :3] = pose_now[:3, :3].dot(core.MatrixExp3(0.05 * core.MatrixLog3(core.RotInv(pose_now[:3, :3]).dot(target[:3, :3]))))
         #print(goal_pose[:3, 3])
         goal_pose[:3, 3] = target[:3, 3] * 0.05 + (1 - 0.05) * pose_now[:3, 3]
@@ -31,6 +33,7 @@ class JointPositionImpedanceGenerator(object):
         Returns:
              np.array: Command torques
         """
+        su_flag = False
         pose_now = self.robot.eef_pose_in_base()
 
         # Update state
@@ -50,12 +53,16 @@ class JointPositionImpedanceGenerator(object):
         wrench = -self.kp.dot(wrench) - self.kd.dot(J_S.dot(self.robot.joint_vel))
        # MassMatrix = self.dynamics.MassMatrix()
         desired_torque = J_S.T.dot(wrench) + self.dynamics.gravityforces(self.robot.joint_pos) + self.dynamics.Quadraticforces(self.robot.joint_pos,self.robot.joint_vel)
+        
         return desired_torque
 
     def set_target(self,target):
         self.total_steps = 2000
         self.step = 0
         self.target = target
+
+    def get_target(self):
+        return self.target
 
     def impedance_controller_joint(self):
         # This is a normal interpolation
@@ -75,13 +82,14 @@ class JointPositionImpedanceGenerator(object):
         MassMatrix = self.dynamics.MassMatrix()
         # Return desired torques plus gravity compensations
         desired_torque = MassMatrix.dot(desired_torque) + self.dynamics.gravityforces(self.robot.joint_pos)  #self.dynamics.gravityforces(self.robot.joint_pos) #+ self.dynamics.Quadraticforces(self.robot.joint_pos,self.robot.joint_vel)
-        print(np.absolute(self.target - self.robot.joint_pos) < self.min_diff)
+        
+        # print(np.absolute(self.target - self.robot.joint_pos) < self.min_diff)
         # print('\n')
         #print(self.robot.torque_compensation)  #
         #print(self.dynamics.gravityforces(self.robot.joint_pos))#
         # print('\n')
         if (np.absolute(self.target - self.robot.joint_pos) < self.min_diff).all():
-            print((self.target - self.robot.joint_pos))
+            # print((self.target - self.robot.joint_pos))
             su_flag = True
 
         return desired_torque, su_flag

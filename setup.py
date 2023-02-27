@@ -6,7 +6,9 @@ required = [
     # Please keep alphabetized
     'gym==0.21.0',
     'numpy==1.24.1',
-    'mujoco-py==2.1.2.14'
+    'mujoco-py==2.1.2.14',
+    'rospy==1.14.13',
+    'rospkg==1.4.0'
 ]
 
 

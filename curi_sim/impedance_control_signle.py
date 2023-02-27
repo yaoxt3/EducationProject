@@ -133,11 +133,11 @@ def impedance_control_integration(ctrl_rate):
     step = 1
     jpos_in_contact = []
     stop_flag = 0
-    force_norm = 0
+
 
     while run_controller:
         error = 100.
-
+        force_norm = 0
         while error > threshold:
             now_c = time.time()
             curr_pos, curr_ori = env.get_ee_pose()
@@ -177,8 +177,10 @@ def impedance_control_integration(ctrl_rate):
                 if env.sim.model.geom_id2name(contact.geom1) == "link7_col" or \
                         env.sim.model.geom_id2name(contact.geom2) == "link7_col":
                     force_norm = np.sqrt(np.sum(np.square(c_array[0:3])))
+                else:
+                    force_norm = 0
                     # print('c_array', c_array)
-
+            pub_f.publish(force_norm)
             print("Force Norm", force_norm)
             while force_norm > 0:
                 count += 1

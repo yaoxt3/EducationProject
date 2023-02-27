@@ -140,7 +140,7 @@
                                             <joint axis="0 0 1" class="panda_forearm" name="panda0_joint7" pos="0 0 0" range="-2.8973 2.8973"/>
                                             <site name="ee_joint" quat="1 0 0 0" pos="0 0 0.106" type="cylinder" size="0.045 0.001" rgba="1 0 1 0.8" />
                                             <site name="sensor_range" quat="1 0 0 0" pos="0 0 0.15" type="cylinder" size="0.04 0.04" rgba="0 1 1 0.2" />
-<!--                                            <geom name="ee_plane" quat="1 0 0 0" pos="0 0 0.104" type="cylinder" size="0.06 0.001" rgba="1 1 1 1"/>-->
+                                            <geom name="ee_plane" quat="1 0 0 0" pos="0 0 0.104" type="cylinder" size="0.06 0.001" rgba="1 1 1 1"/>
                                             <geom name="link7_viz" class="panda_viz" mesh="link7_viz"/>
                                             <geom class="panda_grey_viz" mesh="link7_dark_viz"/>
                                             <geom name="link7_col" class="panda_col" mesh="link7_col"/>

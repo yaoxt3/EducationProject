@@ -127,7 +127,7 @@ def impedance_control_integration(ctrl_rate):
             # if sleep_time_c > 0.0:
             #     print(f"sleep_time_c:{sleep_time_c}")
             #     time.sleep(sleep_time_c)
-            time.sleep(0.0002)
+            time.sleep(0.002)
 
             step += 1
 
@@ -201,7 +201,6 @@ if __name__ == "__main__":
         if dis < 0.4:
             break
         sleep(0.001)
-    print(f"dis:{dis}")
     print("cancel force")
     if dis <= 0.4:
         print("run_controller True")

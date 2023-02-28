@@ -7,3 +7,6 @@ ERROR: Could not allocate offscreen framebuffer
 Fri Jan 27 05:25:54 2023
 ERROR: Could not allocate offscreen framebuffer
 
+Tue Feb 28 14:32:52 2023
+ERROR: GLEW initalization error: Missing GL version
+

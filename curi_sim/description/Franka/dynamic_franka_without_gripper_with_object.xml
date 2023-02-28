@@ -162,7 +162,7 @@
         <body name="object" pos="0.6 -1.5 0.37" quat="1 0 0 0" >
             <inertial pos="0 0 0" mass="3" diaginertia="0.0003686049833333333 0.001255996129167 0.001460916979167" />
 <!--            <joint axis="1 0 0" name="box:slidex" damping="0.1" type="slide"/>-->
-            <joint axis="0 1 0" name="box:slidey" damping="0.1" type="slide"/>
+            <joint axis="0 1 0" name="box:slidey" type="slide"/>
 <!--            <joint axis="0 0 1" name="box:slidez" damping="0.5" type="slide"/>-->
             <geom name="object" type="box" size="0.16 0.08 0.1" group="1" rgba=".9 0 0 1" />
 <!--            <site name="obj_front" pos="-0.1605 0 0" quat="1 0 0 0"          type="box" size="1e-5 0.04 0.09" group="2" rgba="1 1 0 0.5" />-->

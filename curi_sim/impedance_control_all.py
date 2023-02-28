@@ -26,15 +26,14 @@ D_ori = 2.
 
 def compute_ts_force(curr_pos, curr_ori, goal_pos, goal_ori, curr_vel, curr_omg, goal_vel):
     delta_pos = (goal_pos - curr_pos).reshape([3, 1])
-    delta_ori = quatdiff_in_euler(curr_ori, goal_ori).reshape([3, 1]) # 这个是计算角度的不同，可能输入变量不是3×1的矩阵
+    delta_ori = quatdiff_in_euler(curr_ori, goal_ori).reshape([3, 1])
     # delta_vel = (goal_vel - curr_vel).reshape([3, 1])
-    # print
     F = np.vstack([P_pos*(delta_pos), P_ori*(delta_ori)]) - \
         np.vstack([D_pos*(curr_vel).reshape([3, 1]),
-                   D_ori*(curr_omg).reshape([3, 1])]) #变成列向量堆叠在一起
+                   D_ori*(curr_omg).reshape([3, 1])]) 
 
     # print(f"force:{F}, shape:{np.shape(F)}")
-    error = np.linalg.norm(delta_pos) + np.linalg.norm(delta_ori) #这个是求范数
+    error = np.linalg.norm(delta_pos) + np.linalg.norm(delta_ori) 
 
     return F, error
 
@@ -107,7 +106,7 @@ def impedance_control_integration(ctrl_rate):
                 break
 
             if count > 0: # controller 1, in-contact phase
-                print(f"target_joint: {target_joint}")
+                # print(f"target_joint: {target_joint}")
                 dx = (target_joint - env.joint_position()[:7]) * 0.02
                 desired_qpos = env.joint_position()[:7] + dx
                 position_error = desired_qpos - env.joint_position()[:7]
@@ -210,7 +209,7 @@ if __name__ == "__main__":
     y_target_vel = curr_vel_ee[1]
     target_vel = curr_vel_ee.copy()
 
-    ctrl_thread = threading.Thread(target=impedance_control_integration, args=[ctrl_rate])  # 传递的是固定参数，这两个是交错执行的，先执行上面再执行下面
+    ctrl_thread = threading.Thread(target=impedance_control_integration, args=[ctrl_rate])  # multi-thread
     ctrl_thread.start()
 
     now_r = time.time()

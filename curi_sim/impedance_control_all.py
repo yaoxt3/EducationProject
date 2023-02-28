@@ -17,7 +17,7 @@ from utils.tf import quatdiff_in_euler
 # --------- Modify as required ------------
 # Task-space controller parameters
 # stiffness gains
-P_pos = 1500.
+P_pos = 1800.
 P_ori = 450.
 # damping gains
 D_pos = 2.*np.sqrt(P_pos)

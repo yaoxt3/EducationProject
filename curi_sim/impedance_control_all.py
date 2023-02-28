@@ -60,6 +60,8 @@ def impedance_control_integration(ctrl_rate):
             now_c = time.time()
             curr_pos, curr_ori = env.get_ee_pose()
             curr_vel, curr_omg = env.get_ee_velocity() # get linear velocity and angular velocity
+            ee_vel = np.sqrt(np.sum(np.square(curr_vel)))
+            pub_robot_vel.publish(ee_vel)
 
             target_vel[1] = y_target_vel
             delta_vel = y_target_vel * env.sim.model.opt.timestep * step
@@ -124,12 +126,12 @@ def impedance_control_integration(ctrl_rate):
 
             env.sim.step()
 
-            # elapsed_c = time.time() - now_c
-            # sleep_time_c = (1. / ctrl_rate) - elapsed_c
-            # if sleep_time_c > 0.0:
-            #     print(f"sleep_time_c:{sleep_time_c}")
-            #     time.sleep(sleep_time_c)
-            time.sleep(0.002)
+            elapsed_c = time.time() - now_c
+            sleep_time_c = (1. / ctrl_rate) - elapsed_c
+            if sleep_time_c > 0.0:
+                print(f"sleep_time_c:{sleep_time_c}")
+                time.sleep(sleep_time_c)
+            # time.sleep(0.002)
 
             step += 1
 
@@ -170,7 +172,9 @@ if __name__ == "__main__":
 
     pub_d = rospy.Publisher('distance', Float32, queue_size=10)  # the distance between object and robot's end effector
     pub_f = rospy.Publisher('contact_force', Float32, queue_size=10)  # the contact force
+
     pub_vel = rospy.Publisher('object_velocity', Float32, queue_size=10)
+    pub_robot_vel = rospy.Publisher('robot_velocity', Float32, queue_size=10)
 
     force_norm = 0
     env.sim.data.xfrc_applied[env.sim.model.body_name2id("object"), :] = np.array([0, 40, 0, 0, 0, 0])

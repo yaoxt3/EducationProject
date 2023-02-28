@@ -7,8 +7,10 @@ required = [
     'gym==0.21.0',
     'numpy==1.24.1',
     'mujoco-py==2.1.2.14',
-    'rospy==1.14.13',
-    'rospkg==1.4.0'
+    'scipy==1.10.1',
+    'rospkg==1.4.0',
+    'pyyaml==6.0',
+    'numpy-quaternion==2022.4.3'
 ]
 
 

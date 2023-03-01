@@ -49,12 +49,13 @@ def impedance_control_integration(ctrl_rate):
     jpos_in_contact = []
     switch_controller = 1
 
-    kp = 1000
+    kp = 500
     kd = 4.1
     target_joint = []
     while run_controller:
         error = 100.
         force_norm = 0
+        total_force = 0
         while error > threshold:
             now_c = time.time()
             curr_pos, curr_ori = env.get_ee_pose()
@@ -73,7 +74,6 @@ def impedance_control_integration(ctrl_rate):
             pub_d.publish(dis)
 
             vel = env.joint_velocities()[7]
-            print(f"object velocity:{vel}")
             pub_vel.publish(vel)
 
             for i in range(env.sim.data.ncon):
@@ -84,14 +84,17 @@ def impedance_control_integration(ctrl_rate):
                 # Use internal functions to read out mj_contactFor
                 c_array = np.zeros(6, dtype=np.float64)
                 mjp.functions.mj_contactForce(env.sim.model, env.sim.data, i, c_array)
-                if env.sim.model.geom_id2name(contact.geom1) == "link7_col" or \
-                        env.sim.model.geom_id2name(contact.geom2) == "link7_col":
+                contact1 = env.sim.model.geom_id2name(contact.geom1)
+                contact2 = env.sim.model.geom_id2name(contact.geom2)
+                if contact1 == "link7_col" or contact2 == "link7_col" or \
+                    contact1 == "link7_viz" or contact2 == "link7_viz":
                     force_norm = np.sqrt(np.sum(np.square(c_array[0:3])))
                 else:
                     force_norm = 0
             pub_f.publish(force_norm)
-
-            print("Force Norm", force_norm)
+            total_force += force_norm
+            
+            print(f"Step: {step}, TotalForce: {total_force}")
             while force_norm > 0:
                 if count == 0:
                     target_joint = env.joint_position()[:7]
@@ -106,7 +109,6 @@ def impedance_control_integration(ctrl_rate):
                 break
 
             if count > 0: # controller 1, in-contact phase
-                # print(f"target_joint: {target_joint}")
                 dx = (target_joint - env.joint_position()[:7]) * 0.02
                 desired_qpos = env.joint_position()[:7] + dx
                 position_error = desired_qpos - env.joint_position()[:7]

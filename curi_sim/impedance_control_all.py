@@ -135,15 +135,16 @@ def impedance_control_integration(ctrl_rate):
             # Return desired torques plus gravity compensations
             MassMatrix = joint_controller.dynamics.MassMatrix()
             desired_torque = MassMatrix.dot(desired_torque) + joint_controller.dynamics.gravityforces(robot.joint_pos)
+            # desired_torque = env.sim.data.qfrc_bias[:7] + desired_torque
             robot.set_joint_torque(desired_torque)
 
             env.sim.step()
 
-            elapsed_c = time.time() - now_c
-            sleep_time_c = (1. / ctrl_rate) - elapsed_c
-            if sleep_time_c > 0.0:
-                print(f"sleep_time_c:{sleep_time_c}")
-                time.sleep(sleep_time_c)
+            # elapsed_c = time.time() - now_c
+            # sleep_time_c = (1. / ctrl_rate) - elapsed_c
+            # if sleep_time_c > 0.0:
+            #     print(f"sleep_time_c:{sleep_time_c}")
+            #     time.sleep(sleep_time_c)
             # time.sleep(0.002)
 
             step += 1

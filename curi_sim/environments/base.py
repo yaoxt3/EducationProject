@@ -35,12 +35,19 @@ class Base_env(object):
     def get_site_pose(self, site_id):
         return self.sim.data.site_xpos[site_id].copy(), quaternion.as_float_array(quaternion.from_rotation_matrix(self.sim.data.site_xmat[site_id].copy().reshape(3, 3)))
 
+    def get_site_pose_mat(self, site_id):
+        return self.sim.data.site_xpos[site_id].copy(), self.sim.data.site_xmat[site_id].copy()
+
     def get_site_velocity(self, site_id):
         return self.sim.data.site_xvelp[site_id].copy(), self.sim.data.site_xvelr[site_id].copy()
 
     def get_ee_pose(self):
         ee_site_id = self.get_site_id("ee_joint")
         return self.get_site_pose(ee_site_id)
+    
+    def get_ee_pose_mat(self):
+        ee_site_id = self.get_site_id("ee_joint")
+        return self.get_site_pose_mat(ee_site_id)
 
     def get_ee_velocity(self):
         ee_site_id = self.get_site_id("ee_joint")

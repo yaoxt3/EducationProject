@@ -8,7 +8,7 @@
     source  :: https://github.com/vikashplus/franka_sim
     License :: Under Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 ====================================================== -->
-    <compiler angle="radian"/>
+    <compiler angle="radian" coordinate="local" meshdir="/home/yxt/Research/Teng/EducationProject/curi_sim/description/Franka"/>
 <!--    <option collision="predefined" timestep="0.005" integrator="RK4" />-->
     <option gravity="0 0 -9.81" />
     <size nconmax="100" njmax="500" nuser_actuator="5"/>
@@ -49,43 +49,6 @@
         </default>
     </default>
 
-    <!-- <asset>
-        <texture type="skybox" builtin="gradient" rgb1="1 1 1" rgb2=".6 .8 1" width="256" height="256"/>
-        <texture builtin="checker" height="512" name="texplane" rgb1="0.2 0.3 0.4" rgb2="0.1 0.15 0.2" type="2d" width="512"/>
-        <material name="MatGnd" reflectance="0.3" texture="texplane" texuniform="true"/>
-        <mesh file="/home/yxt/Research/Teng/EducationProject/curi_sim/description/meshes/collision/link0.stl" name="link0_col"/>
-        <mesh file="/home/yxt/Research/Teng/EducationProject/curi_sim/description/meshes/collision/link1.stl" name="link1_col"/>
-        <mesh file="/home/yxt/Research/Teng/EducationProject/curi_sim/description/meshes/collision/link2.stl" name="link2_col"/>
-        <mesh file="/home/yxt/Research/Teng/EducationProject/curi_sim/description/meshes/collision/link3.stl" name="link3_col"/>
-        <mesh file="/home/yxt/Research/Teng/EducationProject/curi_sim/description/meshes/collision/link4.stl" name="link4_col"/>
-        <mesh file="/home/yxt/Research/Teng/EducationProject/curi_sim/description/meshes/collision/link5.stl" name="link5_col"/>
-        <mesh file="/home/yxt/Research/Teng/EducationProject/curi_sim/description/meshes/collision/link6.stl" name="link6_col"/>
-        <mesh file="/home/yxt/Research/Teng/EducationProject/curi_sim/description/meshes/collision/link7.stl" name="link7_col"/>
-        <mesh file="/home/yxt/Research/Teng/EducationProject/curi_sim/description/meshes/collision/hand.stl" name="hand_col"/>
-        <mesh file="/home/yxt/Research/Teng/EducationProject/curi_sim/description/meshes/visual/link0.stl" name="link0_viz"/>
-        <mesh file="/home/yxt/Research/Teng/EducationProject/curi_sim/description/meshes/visual/link1.stl" name="link1_viz"/>
-        <mesh file="/home/yxt/Research/Teng/EducationProject/curi_sim/description/meshes/visual/link2.stl" name="link2_viz"/>
-        <mesh file="/home/yxt/Research/Teng/EducationProject/curi_sim/description/meshes/visual/link3.stl" name="link3_viz"/>
-        <mesh file="/home/yxt/Research/Teng/EducationProject/curi_sim/description/meshes/visual/link4.stl" name="link4_viz"/>
-        <mesh file="/home/yxt/Research/Teng/EducationProject/curi_sim/description/meshes/visual/link5.stl" name="link5_viz"/>
-        <mesh file="/home/yxt/Research/Teng/EducationProject/curi_sim/description/meshes/visual/link6.stl" name="link6_viz"/>
-        <mesh file="/home/yxt/Research/Teng/EducationProject/curi_sim/description/meshes/visual/link7.stl" name="link7_viz"/>
-        <mesh file="/home/yxt/Research/Teng/EducationProject/curi_sim/description/meshes/visual/hand.stl" name="hand_viz"/>
-        <mesh file="/home/yxt/Research/Teng/EducationProject/curi_sim/description/meshes/visual/link3_dark.stl" name="link3_dark_viz" scale="1.01 1.01 1.01"/>
-        <mesh file="/home/yxt/Research/Teng/EducationProject/curi_sim/description/meshes/visual/link4_dark.stl" name="link4_dark_viz" scale="1.01 1.01 1.01"/>
-        <mesh file="/home/yxt/Research/Teng/EducationProject/curi_sim/description/meshes/visual/link5_dark.stl" name="link5_dark_viz" scale="1.01 1.01 1.01"/>
-        <mesh file="/home/yxt/Research/Teng/EducationProject/curi_sim/description/meshes/visual/link6_dark.stl" name="link6_dark_viz" scale="1.01 1.01 1.01"/>
-        <mesh file="/home/yxt/Research/Teng/EducationProject/curi_sim/description/meshes/visual/link7_dark.stl" name="link7_dark_viz" scale="1.01 1.01 1.01"/>
-        <mesh file="/home/yxt/Research/Teng/EducationProject/curi_sim/description/meshes/collision/finger.stl" name="finger_col" scale="1.75 1 1.75"/>
-        <mesh file="/home/yxt/Research/Teng/EducationProject/curi_sim/description/meshes/collision/finger.stl" name="finger_viz" scale="1.75 1 1.75"/>
-
-        <texture name="light_wood_v3" file="/home/yxt/Research/Teng/EducationProject/curi_sim/description/textures/light_wood_v3.png" type="2d"/>
-        <material shininess=".1" name="light_wood_v3" texture="light_wood_v3" specular="0.4"/>
-
-        <texture name="marble" file="/home/yxt/Research/Teng/EducationProject/curi_sim/description/textures/marble.png" type="2d"/>
-        <material shininess=".1" name="marble" texture="marble" specular="0.4"/>
-    </asset> -->
-
     <asset>
         <texture type="skybox" builtin="gradient" rgb1="1 1 1" rgb2=".6 .8 1" width="256" height="256"/>
         <texture builtin="checker" height="512" name="texplane" rgb1="0.2 0.3 0.4" rgb2="0.1 0.15 0.2" type="2d" width="512"/>
@@ -116,11 +79,11 @@
         <mesh file="./meshes/collision/finger.stl" name="finger_col" scale="1.75 1 1.75"/>
         <mesh file="./meshes/collision/finger.stl" name="finger_viz" scale="1.75 1 1.75"/>
 
-        <texture name="light_wood_v3" file="./textures/light_wood_v3.png" type="2d"/>
+        <!-- <texture name="light_wood_v3" file="./textures/light_wood_v3.png" type="2d"/>
         <material shininess=".1" name="light_wood_v3" texture="light_wood_v3" specular="0.4"/>
 
         <texture name="marble" file="./textures/marble.png" type="2d"/>
-        <material shininess=".1" name="marble" texture="marble" specular="0.4"/>
+        <material shininess=".1" name="marble" texture="marble" specular="0.4"/> -->
     </asset>
 
     <worldbody>
@@ -132,12 +95,12 @@
 
         <geom material="MatGnd" name="ground" size="5 5 10" type="plane"/>
 
-        <geom material="light_wood_v3" name="table" pos="0.87 0 0.13" type="box" size="0.8 2 0.13" group = "1" rgba=".5 .5 .5 1" />
+        <!-- <geom material="light_wood_v3" name="table" pos="0.87 0 0.13" type="box" size="0.8 2 0.13" group = "1" rgba=".5 .5 .5 1" /> -->
 
         <body name="base" pos="0 0 0">
             <body name="controller_box" pos="0 0 0">
                 <inertial diaginertia="1.71363 1.27988 0.809981" mass="46.64" pos="-0.325 0 -0.38"/>
-                <geom material="marble" pos="-0.13 0 0.13" size="0.2 0.3 0.13" type="box" name="controller_box_col" rgba="0.5 1.0 1.0 1"/>
+                <geom pos="-0.13 0 0.13" size="0.2 0.3 0.13" type="box" name="controller_box_col" rgba="0.5 1.0 1.0 1"/>
             </body>
             <body name="panda0_link0" pos="0 0 0.26">
                 <inertial diaginertia="0.122527 0.11364 0.0827785" mass="2.91242" pos="0 0 0"/>
@@ -197,24 +160,7 @@
             </body>
         </body>
 
-        <body name="object" pos="0.6 -1.5 0.37" quat="1 0 0 0" >
-            <inertial pos="0 0 0" mass="3" diaginertia="0.0003686049833333333 0.001255996129167 0.001460916979167" />
-<!--            <joint axis="1 0 0" name="box:slidex" damping="0.1" type="slide"/>-->
-            <joint axis="0 1 0" name="box:slidey" type="slide"/>
-<!--            <joint axis="0 0 1" name="box:slidez" damping="0.5" type="slide"/>-->
-            <geom name="object" type="box" size="0.16 0.08 0.1" group="1" rgba=".9 0 0 1" />
-<!--            <site name="obj_front" pos="-0.1605 0 0" quat="1 0 0 0"          type="box" size="1e-5 0.04 0.09" group="2" rgba="1 1 0 0.5" />-->
-<!--            <site name="obj_right" pos="0 -0.0805 0" quat="0.707 0 0 0.707"  type="box" size="1e-5 0.10 0.09" group="2" rgba="0 1 0 0.5" />-->
-            <site name="obj_contact"  pos="0 +0.0805 0" quat="0.707 0 0 -0.707" type="box" size="1e-5 0.10 0.09" group="2" rgba="1 0 1 0.5" />
-<!--            <site name="obj_rear"  pos="+0.1605 0 0" quat="0 0 0 1"          type="box" size="1e-5 0.04 0.09" group="2" rgba="1 1 0 0.5" />-->
-            <!-- Point contact sites -->
-            <!-- <site name="obj_front" pos="-0.15075 0 0" quat="1 0 0 0"          type="sphere" size="1e-3" group="2" rgba="1 1 0 1" /> -->
-            <!-- <site name="obj_right" pos="0 -0.0745 0"  quat="0.707 0 0 0.707"  type="sphere" size="1e-3" group="2" rgba="1 1 0 1" /> -->
-            <!-- <site name="obj_left"  pos="0 +0.0745 0"  quat="0.707 0 0 -0.707" type="sphere" size="1e-3" group="2" rgba="1 1 0 1" /> -->
-            <!-- <site name="obj_rear"  pos="+0.15075 0 0" quat="0 0 0 1"          type="sphere" size="1e-3" group="2" rgba="1 1 0 1" /> -->
-        </body>
-
-        <site name="slide_bar" pos="0.6 0 0.27" type="box" size="0.05 2 0.01" rgba=".0 .0 .5 .15"/>
+        
 
     </worldbody>
     <actuator>
@@ -225,9 +171,6 @@
         <general ctrllimited="true" ctrlrange="-80 80" joint="panda0_joint5" name="panda0_joint5"/>
         <general ctrllimited="true" ctrlrange="-12 12" joint="panda0_joint6" name="panda0_joint6"/>
         <general ctrllimited="true" ctrlrange="-12 12" joint="panda0_joint7" name="panda0_joint7"/>
-<!--        <motor gear="100.0" joint="box:slidex"/>-->
-        <motor gear="100.0" joint="box:slidey"/>
-<!--        <motor gear="100.0" joint="box:slidez"/>-->
     </actuator>
     <sensor>
         <jointpos joint="panda0_joint1" name="fr_arm_jp1"/>
@@ -237,9 +180,6 @@
         <jointpos joint="panda0_joint5" name="fr_arm_jp5"/>
         <jointpos joint="panda0_joint6" name="fr_arm_jp6"/>
         <jointpos joint="panda0_joint7" name="fr_arm_jp7"/>
-<!--        <jointpos joint="box:slidex" name="box_jpx"/>-->
-        <jointpos joint="box:slidey" name="box_jpy"/>
-<!--        <jointpos joint="box:slidez" name="box_jpz"/>-->
 
         <jointvel joint="panda0_joint1" name="fr_arm_jv1"/>
         <jointvel joint="panda0_joint2" name="fr_arm_jv2"/>
@@ -248,9 +188,6 @@
         <jointvel joint="panda0_joint5" name="fr_arm_jv5"/>
         <jointvel joint="panda0_joint6" name="fr_arm_jv6"/>
         <jointvel joint="panda0_joint7" name="fr_arm_jv7"/>
-<!--        <jointvel joint="box:slidex" name="box_jvx"/>-->
-        <jointvel joint="box:slidey" name="box_jvy"/>
-<!--        <jointvel joint="box:slidez" name="box_jvz"/>-->
 
         <actuatorfrc actuator="panda0_joint1" name="fr_arm_jf1"/>
         <actuatorfrc actuator="panda0_joint2" name="fr_arm_jf2"/>

@@ -144,7 +144,7 @@ def impedance_control_integration(ctrl_rate):
             curr_vel, curr_omg = env.get_ee_velocity() # get linear velocity and angular velocity
 
             target_vel[1] = y_target_vel
-            delta_vel = y_target_vel * env.sim.model.opt.timestep * step*2
+            delta_vel = y_target_vel * env.sim.model.opt.timestep * step
 
             while True:
                 if stop_flag == 0:
@@ -190,7 +190,7 @@ def impedance_control_integration(ctrl_rate):
                 if force_norm<0.1 and count > 0 and stop_flag==0:
                     print(f"stop position")
                     target_pos, target_ori = env.get_ee_pose()
-                    target_pos[1] += 0.05
+                    target_pos[1] += 0.1
                     stop_flag = 1
                 break
 
@@ -266,13 +266,7 @@ if __name__ == "__main__":
 
     ctrl_rate = 1 / env.sim.model.opt.timestep
     render_rate = 100
-    curr_ee, original_ori = env.get_ee_pose() # end effector's pose
-    curr_vel_ee, curr_omg_ee = env.get_ee_velocity() # end effector's velocity
-    target_pos = curr_ee.copy()
-    target_y_vel = np.linspace(curr_vel_ee[1], curr_vel_ee[1] + 0.4, 100).tolist()
-    y_target_vel = curr_vel_ee[1]
-
-    target_vel = curr_vel_ee
+    
 
     force_norm = 0
     env.sim.data.xfrc_applied[env.sim.model.body_name2id("object"), :] = np.array([0, 40, 0, 0, 0, 0])
@@ -290,16 +284,24 @@ if __name__ == "__main__":
         dis = np.sqrt(np.sum(np.square(joint_pos - object_pos)))
         if dis <= 1.:
             env.sim.data.xfrc_applied[env.sim.model.body_name2id("object"), :] = np.array([0, 0, 0, 0, 0, 0])
-        if dis < 0.4:
+        if dis < 0.3:
             break
         sleep(0.001)
     print(f"dis:{dis}")
     print("cancel force")
-    if dis <= 0.4:
+    if dis <= 0.3:
         print("run_controller True")
         run_controller = True
     else:
         run_controller = False
+    
+    curr_ee, original_ori = env.get_ee_pose() # end effector's pose
+    curr_vel_ee, curr_omg_ee = env.get_ee_velocity() # end effector's velocity
+    target_pos = curr_ee.copy()
+    target_y_vel = np.linspace(curr_vel_ee[1], curr_vel_ee[1] + 0.4, 100).tolist()
+    y_target_vel = curr_vel_ee[1]
+
+    target_vel = curr_vel_ee
 
     ctrl_thread = threading.Thread(target=impedance_control_integration, args=[ctrl_rate])  # 传递的是固定参数，这两个是交错执行的，先执行上面再执行下面
     ctrl_thread.start()

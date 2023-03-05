@@ -136,7 +136,8 @@
                                     <geom name="link5_col" class="panda_col" mesh="link5_col"/>
                                     <body name="panda0_link6" pos="0 0 0" quat="0.707107 0.707107 0 0">
                                         <inertial diaginertia="0.001964 0.004354 0.005433" mass="1.666555" pos="6.0149e-02 -1.4117e-02 -1.0517e-02"/>
-                                        <joint axis="0 0 1" class="panda_forearm" name="panda0_joint6" pos="0 0 0" range="-1.6573 2.1127"/>
+                                        <!-- <joint axis="0 0 1" class="panda_forearm" name="panda0_joint6" pos="0 0 0" range="-1.6573 2.1127"/> -->
+                                        <joint axis="0 0 1" class="panda_forearm" name="panda0_joint6" pos="0 0 0" range="-0.0873 3.8223"/>
                                         <geom name="link6_viz"  class="panda_viz" mesh="link6_viz"/>
                                         <geom class="panda_grey_viz" mesh="link6_dark_viz"/>
                                         <geom name="link6_col"  class="panda_col" mesh="link6_col"/>

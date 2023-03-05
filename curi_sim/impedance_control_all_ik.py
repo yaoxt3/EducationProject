@@ -97,6 +97,7 @@ D_ori = 2.
 def compute_ts_force(curr_pos, curr_ori, goal_pos, goal_ori, curr_vel, curr_omg, goal_vel):
     delta_pos = (goal_pos - curr_pos).reshape([3, 1])
     delta_ori = quatdiff_in_euler(curr_ori, goal_ori).reshape([3, 1])
+    # print(f"delta_ori:{delta_ori}")
     # delta_vel = (goal_vel - curr_vel).reshape([3, 1])
     F = np.vstack([P_pos*(delta_pos), P_ori*(delta_ori)]) - \
         np.vstack([D_pos*(curr_vel).reshape([3, 1]),
@@ -167,20 +168,19 @@ def impedance_control_integration(ctrl_rate):
             pub_f.publish(force_norm)
             total_force += force_norm
             
-            print(f"Step: {step}, TotalForce: {total_force}")
+            print(f"Step: {step}, TotalForce: {total_force}, Object vel:{vel}")
             print("###################")
 
             while force_norm > 0:
                 if count == 0:
                     target_joint = env.joint_position()[:7]
-                    target_ee_pos, target_ee_ori = env.get_ee_pose()
-                    target_ee_pos[1] += 0.05
-                    print(f"current ee pos:{env.get_ee_pose()}")
-                    print(f"target_ee_pos:{target_ee_pos}, target_ee_ori:{target_ee_ori}")
-                    ik_joint_pos = inverse_kinematics(target_ee_pos, target_ee_ori, target_joint)
-                    print(f"ik joint pos:{ik_joint_pos}")
-                    print(f"joint pos:{env.joint_position()[:7]}")
-                    print("++++++++++++++++++++++++")
+
+                    # print(f"current ee pos:{env.get_ee_pose()}")
+                    # print(f"target_ee_pos:{target_ee_pos}, target_ee_ori:{target_ee_ori}")
+                    # ik_joint_pos = inverse_kinematics(target_ee_pos, target_ee_ori, target_joint)
+                    # print(f"ik joint pos:{ik_joint_pos}")
+                    # print(f"joint pos:{env.joint_position()[:7]}")
+                    # print("++++++++++++++++++++++++")
                     switch_controller = 2
                 count += 1
                 break
@@ -197,15 +197,21 @@ def impedance_control_integration(ctrl_rate):
                 desired_qpos = env.joint_position()[:7] + dx
                 position_error = desired_qpos - env.joint_position()[:7]
                 vel_pos_error = -env.joint_velocities()[:7]
-                desired_torque = (np.multiply(np.array(position_error), np.array(kp))
-                                  + np.multiply(vel_pos_error, kd))
+                desired_torque = (np.multiply(np.array(position_error), np.array(kp)) + np.multiply(vel_pos_error, kd))
                 
                 # 2.End effector position-based PD controller
-                
+                # curr_joint_pos = inverse_kinematics(curr_ee, target_ee_ori, env.joint_position()[:7])
+                # dx_joint = (target_joint - curr_joint_pos) * 0.02
+                # desired_qpos = curr_joint_pos + dx_joint
+                # position_error = desired_qpos - curr_joint_pos
+                # vel_pos_error = -env.joint_velocities()[:7]
+                # desired_torque = (np.multiply(np.array(position_error), np.array(kp)) + np.multiply(vel_pos_error, kd))
                 
             else: # controller 2, pre-move phase
                 F, error = compute_ts_force(curr_pos, curr_ori, target_pos, original_ori, curr_vel, curr_omg, target_vel)
                 desired_torque = np.dot(env.get_ee_jacobian("ee_joint").T, F).flatten().tolist()
+                target_ee_pos, target_ee_ori = env.get_ee_pose() # record the ee position and pose at the moment of contact
+
 
             # Return desired torques plus gravity compensations
             MassMatrix = joint_controller.dynamics.MassMatrix()
@@ -213,6 +219,14 @@ def impedance_control_integration(ctrl_rate):
             robot.set_joint_torque(desired_torque)
 
             env.sim.step()
+            
+            if count > 0:
+                diff_ori = quatdiff_in_euler(curr_ori, target_ee_ori)
+                print(f"in contact 2 diff ori: {diff_ori}")
+                ee_curr_pos, ee_curr_ori = env.get_ee_pose()
+                if (np.absolute(diff_ori) > 0.05).any():
+                    adjust_joint_pos = inverse_kinematics(ee_curr_pos, target_ee_ori, env.joint_position()[:7])
+                    env.set_initial_pos(adjust_joint_pos)
 
             elapsed_c = time.time() - now_c
             sleep_time_c = (1. / ctrl_rate) - elapsed_c

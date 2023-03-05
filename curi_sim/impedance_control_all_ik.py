@@ -24,34 +24,14 @@ mjlib = mjbindings.mjlib
 _ARM_XML = assets.get_contents('/home/yxt/Research/Teng/EducationProject/curi_sim/description/Franka/arm_for_IK.xml')
 _SITE_NAME = 'ee_joint'
 _JOINTS = ['panda0_joint1', 'panda0_joint2', 'panda0_joint3', 'panda0_joint4', 'panda0_joint5', 'panda0_joint6', 'panda0_joint7']
-_TOL = 1.2e-14
-_MAX_STEPS = 100
+_TOL = 1.2e-8
+_MAX_STEPS = 150
 _MAX_RESETS = 10
 # -----------------------------------------
 
 joint_max = [2.8973, 1.7628, 2.8973, -0.4, 2.8973, 2.1127, 2.8973]
 joint_min = [-2.8973, -1.7628, -2.8973, -3.0718, -2.8973, -1.6573, -2.8973]
 
-class _ResetArm:
-
-  def __init__(self, seed=None):
-    self._rng = np.random.RandomState(seed)
-    self._lower = None
-    self._upper = None
-
-  def _cache_bounds(self, physics):
-    self._lower, self._upper = physics.named.model.jnt_range[_JOINTS].T
-    limited = physics.named.model.jnt_limited[_JOINTS].astype(bool)
-    # Positions for hinge joints without limits are sampled between 0 and 2pi
-    self._lower[~limited] = 0
-    self._upper[~limited] = 2 * np.pi
-
-  def __call__(self, physics):
-    if self._lower is None:
-      self._cache_bounds(physics)
-    # NB: This won't work for joints with > 1 DOF
-    new_qpos = self._rng.uniform(self._lower, self._upper)
-    physics.named.data.qpos[_JOINTS] = new_qpos
 
 def ik_set_joint_pos(physics, joint_pos):
     physics.named.data.qpos[_JOINTS] = joint_pos
@@ -61,27 +41,33 @@ def inverse_kinematics(target_pos, target_quat, current_pos):
     count = 0
     physics2 = physics.copy(share_model=True)
     # resetter = _ResetArm(seed=0)
+    ik_set_joint_pos(physics2, current_pos)
+    step = 0
+    curr_time = time.time()
     while True:
-      result = ik.qpos_from_site_pose(
-          physics=physics2,
-          site_name=_SITE_NAME,
-          target_pos=target_pos,
-          target_quat=target_quat,
-          joint_names=_JOINTS,
-          tol=_TOL,
-          max_steps=_MAX_STEPS,
-          inplace=False,
-      )
-      if result.success:
-        break
-      elif count < _MAX_RESETS:
-        ik_set_joint_pos(physics2, current_pos)
-        count += 1
-      else:
-        raise RuntimeError(
-            'Failed to find a solution within %i attempts.' % _MAX_RESETS)
-
-    return result.qpos
+        result = ik.qpos_from_site_pose(
+            physics=physics2,
+            site_name=_SITE_NAME,
+            target_pos=target_pos,
+            target_quat=target_quat,
+            joint_names=_JOINTS,
+            tol=_TOL,
+            max_steps=_MAX_STEPS,
+            inplace=False,
+        )
+        print(f"step:{step}, result:{result}")
+        if result.success:
+            break
+        elif count < _MAX_RESETS:
+            ik_set_joint_pos(physics2, current_pos)
+            count += 1
+        else:
+            raise RuntimeError(
+                'Failed to find a solution within %i attempts.' % _MAX_RESETS)
+        step += 1
+        
+    print(f"ik time: {time.time() - curr_time}") 
+    
     # physics.data.qpos[:] = result.qpos
     # mjlib.mj_fwdPosition(physics.model.ptr, physics.data.ptr)
     # if target_pos is not None:
@@ -94,6 +80,8 @@ def inverse_kinematics(target_pos, target_quat, current_pos):
     #   mjlib.mju_mat2Quat(quat, xmat)
     #   quat /= quat.ptp()  # Normalize xquat so that its max-min range is 1
     #   np.testing.assert_array_almost_equal(quat, target_quat)
+      
+    return result.qpos
       
       
 # --------- Modify as required ------------
@@ -186,9 +174,11 @@ def impedance_control_integration(ctrl_rate):
                 if count == 0:
                     target_joint = env.joint_position()[:7]
                     target_ee_pos, target_ee_ori = env.get_ee_pose()
+                    target_ee_pos[1] += 0.05
+                    print(f"current ee pos:{env.get_ee_pose()}")
                     print(f"target_ee_pos:{target_ee_pos}, target_ee_ori:{target_ee_ori}")
-                    # ik_joint_pos = inverse_kinematics(target_ee_pos, target_ee_ori, target_joint)
-                    # print(f"ik joint pos:{ik_joint_pos}")
+                    ik_joint_pos = inverse_kinematics(target_ee_pos, target_ee_ori, target_joint)
+                    print(f"ik joint pos:{ik_joint_pos}")
                     print(f"joint pos:{env.joint_position()[:7]}")
                     print("++++++++++++++++++++++++")
                     switch_controller = 2

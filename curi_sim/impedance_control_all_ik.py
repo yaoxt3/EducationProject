@@ -220,11 +220,12 @@ def impedance_control_integration(ctrl_rate):
 
             env.sim.step()
             
+            # adjust end effector pose via inverse kinematics
             if count > 0:
                 diff_ori = quatdiff_in_euler(curr_ori, target_ee_ori)
                 print(f"in contact 2 diff ori: {diff_ori}")
                 ee_curr_pos, ee_curr_ori = env.get_ee_pose()
-                if (np.absolute(diff_ori) > 0.05).any():
+                if (np.absolute(diff_ori) > 0.03).any():
                     adjust_joint_pos = inverse_kinematics(ee_curr_pos, target_ee_ori, env.joint_position()[:7])
                     env.set_initial_pos(adjust_joint_pos)
 

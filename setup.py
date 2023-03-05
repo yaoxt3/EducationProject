@@ -10,7 +10,8 @@ required = [
     'scipy==1.10.1',
     'rospkg==1.4.0',
     'pyyaml==6.0',
-    'numpy-quaternion==2022.4.3'
+    'numpy-quaternion==2022.4.3',
+    'dm-control==1.0.10'
 ]
 
 

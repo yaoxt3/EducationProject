@@ -59,7 +59,8 @@ def mujocoJointFunc():
 
         pub_d.publish(dis)
         force_norm = 0
-        vel = math.sqrt(env.sim.data.qvel[7]**2+env.sim.data.qvel[8]**2) # object's velocity
+        # vel = math.sqrt(env.sim.data.qvel[7]**2+env.sim.data.qvel[8]**2) # object's velocity
+        vel = env.sim.data.qvel[7]
         pub_vel.publish(vel)
         for i in range(sim.data.ncon):
             # Note that the contact array has more than `ncon` entries,
@@ -89,7 +90,8 @@ def mujocoJointFunc():
                 env.sim.step()
                 env.render()
                 sleep(0.05)
-                vel = math.sqrt(env.sim.data.qvel[7] ** 2 + env.sim.data.qvel[8] ** 2)
+                # vel = math.sqrt(env.sim.data.qvel[7] ** 2 + env.sim.data.qvel[8] ** 2)
+                vel = env.sim.data.qvel[7]
                 pub_vel.publish(vel)
                 pub_f.publish(force_norm)
                 print("applied force!")

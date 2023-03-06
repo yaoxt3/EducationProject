@@ -20,7 +20,7 @@ from dm_control.mujoco.wrapper import mjbindings
 from dm_control.utils import inverse_kinematics as ik
 mjlib = mjbindings.mjlib
 
-_ARM_XML = assets.get_contents('/home/yxt/Research/code/EducationProject/curi_sim/description/Franka/arm_for_IK.xml')
+_ARM_XML = assets.get_contents('/home/yxt/Research/Teng/EducationProject/curi_sim/description/Franka/arm_for_IK.xml')
 _SITE_NAME = 'ee_joint'
 _JOINTS = ['panda0_joint1', 'panda0_joint2', 'panda0_joint3', 'panda0_joint4', 'panda0_joint5', 'panda0_joint6', 'panda0_joint7']
 _TOL = 1.2e-8
@@ -238,22 +238,17 @@ def impedance_control_integration(ctrl_rate):
 
 
 def go_to_initial_pos():
-    global env, robot, joint_controller
-    # initial_pos = np.array([0.0, 0.85, 0.0, -1.7, -1.62, 1.6, 0.0])
+    global env, robot, joint_controller, su_flag, update_ee
     initial_pos = np.array([0.0, 0.85, -0.2, -1.7, -1.62, 1.6, 1.0])
-    initial_pos2 = np.array([0.0, 0.85, -0.3, -1.7, -1.62, 1.95, 0.3])
+    # initial_pos2 = np.array([0.0, 0.85, -0.3, -1.7, -1.62, 1.95, 0.3])
 
     env.set_initial_pos(initial_pos)
-    env.render()
-    while True:
+    
+    while update_ee:
         jtor, su_flag = joint_controller.impedance_controller_joint()
         robot.set_joint_torque(jtor)
         env.sim.step()
-        env.render()
-
-        if su_flag:
-            break
-        sleep(0.005)
+        sleep(0.01)
 
 
 if __name__ == "__main__":
@@ -279,37 +274,43 @@ if __name__ == "__main__":
     pub_f = rospy.Publisher('contact_force', Float32, queue_size=10)  # the contact force
     pub_vel = rospy.Publisher('object_velocity', Float32, queue_size=10)
     pub_robot_vel = rospy.Publisher('robot_velocity', Float32, queue_size=10)
-    run_controller = False
-    force_norm = 0
-    go_to_initial_pos() # go to initial position
     
-    force_norm = 0
-    env.sim.data.xfrc_applied[env.sim.model.body_name2id("object"), :] = np.array([0, 20, 0, 0, 0, 0])
-    print("applied force!")
-    for i in range(2000):
-        joint_pos = env.get_site_pos("ee_joint")
-        object_pos = env.get_site_pos("obj_contact")
-        dis = np.sqrt(np.sum(np.square(joint_pos - object_pos)))
-
-        if dis <= 1:
-            env.sim.data.xfrc_applied[env.sim.model.body_name2id("object"), :] = np.array([0, 0, 0, 0, 0, 0])
-        if dis >= 0:
-            vel_pos_error_initial = -env.joint_velocities()[:7]
-            position_error_initial = target2 - env.joint_position()[:7]
-            desired_torque_initial = (np.multiply(np.array(position_error_initial), np.array(1800)) + np.multiply(vel_pos_error_initial, 400))
-            MassMatrix_intial = joint_controller.dynamics.MassMatrix()
-            desired_torque_initial = MassMatrix_intial.dot(desired_torque_initial) + joint_controller.dynamics.gravityforces(robot.joint_pos)
-            robot.set_joint_torque(desired_torque_initial)
-        if dis < 0.3:
-            run_controller = True
-            break
+    update_ee = True
+    su_flag = False
+    update_ee_thread = threading.Thread(target=go_to_initial_pos) # go to initial position
+    update_ee_thread.start()
         
-        vel = env.joint_velocities()[7] 
-        pub_vel.publish(vel)
-        pub_f.publish(force_norm)
+    force_norm = 0
+    break_flag = False
+    dis = 100
+    print("applied force!")
+    while True:
+        if su_flag:
+            joint_pos = env.get_site_pos("ee_joint")
+            object_pos = env.get_site_pos("obj_contact")
+            dis = np.sqrt(np.sum(np.square(joint_pos - object_pos)))
+            if dis > 1:
+                env.sim.data.xfrc_applied[env.sim.model.body_name2id("object"), :] = np.array([0, 40, 0, 0, 0, 0])
+            elif dis <= 1:
+                env.sim.data.xfrc_applied[env.sim.model.body_name2id("object"), :] = np.array([0, 0, 0, 0, 0, 0])
+            if dis < 0.3:
+                break_flag = True
+            vel = env.joint_velocities()[7] 
+            pub_vel.publish(vel)
+            pub_f.publish(force_norm)
+            
+        if break_flag:
+            break        
         env.sim.step()
         env.render()
+        sleep(0.01)
 
+    if dis <= 0.3:
+        update_ee = False
+        update_ee_thread.join()
+        run_controller = True
+    else:
+        run_controller = False
 
     ctrl_rate = 1 / env.sim.model.opt.timestep
     render_rate = 100
@@ -326,10 +327,8 @@ if __name__ == "__main__":
     # ik_thread = threading.Thread(target=inverse_kinematics_thread)
     # ik_thread.start()
     
-    
     now_r = time.time()
     i = 0
-    
 
     while i < len(target_y_vel):
 

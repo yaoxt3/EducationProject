@@ -139,9 +139,7 @@ def impedance_control_integration(ctrl_rate):
     kp = 1000
     kd = 4.1
     target_joint = []
-    target_ee_pos = []
     target_ee_ori = []
-    target_ee_ori_mat = []
     while run_controller:
         error = 100.
         force_norm = 0
@@ -203,13 +201,19 @@ def impedance_control_integration(ctrl_rate):
 
             if count > 0: # controller 1, in-contact phase
                 # 1.Joint position-based PD controller
+                # end effector pose adjustment
+                target_ee_pos_control1, _ = env.get_ee_pose()
+                adjust_joint_pos_control1 = inverse_kinematics(target_ee_pos_control1, target_ee_ori, env.joint_position()[:7])
+                position_error_control1 = adjust_joint_pos_control1 - env.joint_position()[:7]
+                # impedance control based on joint position
                 position_error = (target_joint - env.joint_position()[:7]) * 0.01
                 vel_pos_error = -env.joint_velocities()[:7]
-                desired_torque = (np.multiply(np.array(position_error), np.array(kp)) + np.multiply(vel_pos_error, kd))
+                desired_torque_control1 = (np.multiply(np.array(position_error_control1), np.array(100)) + np.multiply(vel_pos_error,kd))
+                desired_torque = (np.multiply(np.array(position_error), np.array(kp)) + np.multiply(vel_pos_error, kd)) + desired_torque_control1
             else: # controller 2, pre-move phase
                 F, error = compute_ts_force(curr_pos, curr_ori, target_pos, original_ori, curr_vel, curr_omg, target_vel)
                 desired_torque = np.dot(env.get_ee_jacobian("ee_joint").T, F).flatten().tolist()
-                target_ee_pos, target_ee_ori = env.get_ee_pose() # record the ee position and pose at the moment of contact
+                _, target_ee_ori = env.get_ee_pose() # record the ee position and pose at the moment of contact
 
             # Return desired torques plus gravity compensations
             MassMatrix = joint_controller.dynamics.MassMatrix()
@@ -223,7 +227,7 @@ def impedance_control_integration(ctrl_rate):
                 diff_ori = quatdiff_in_euler(curr_ori, target_ee_ori)
                 print(f"in contact 2 diff ori: {diff_ori}")
                 ee_curr_pos, ee_curr_ori = env.get_ee_pose()
-                if (np.absolute(diff_ori) > 0.06).any():
+                if (np.absolute(diff_ori) > 0.2).any():
                     adjust_joint_pos = inverse_kinematics(ee_curr_pos, target_ee_ori, env.joint_position()[:7])
                     env.set_initial_pos(adjust_joint_pos)
 
@@ -244,7 +248,7 @@ def go_to_initial_pos():
         jtor, su_flag = joint_controller.impedance_controller_joint()
         robot.set_joint_torque(jtor)
         env.sim.step()
-        sleep(0.01)
+        sleep(0.002)
 
 
 if __name__ == "__main__":
@@ -303,7 +307,7 @@ if __name__ == "__main__":
             break        
         env.sim.step()
         env.render()
-        sleep(0.01)
+        sleep(0.002)
 
     if dis <= 0.3:
         update_ee = False

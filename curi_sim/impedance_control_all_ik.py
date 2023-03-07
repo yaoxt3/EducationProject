@@ -186,6 +186,11 @@ def impedance_control_integration(ctrl_rate):
             while force_norm > 0:
                 if count == 0:
                     target_joint = env.joint_position()[:7]
+                    delta_target = 0.38 - curr_ee[1]
+                    K_max = force_norm / delta_target
+                    print("delta_target", delta_target)
+                    print("K_max", K_max)
+                    print("curr_ee", curr_ee)
                     switch_controller = 2
                 count += 1
                 break
@@ -210,7 +215,7 @@ def impedance_control_integration(ctrl_rate):
                 position_error = (target_joint - env.joint_position()[:7]) * 0.02
                 vel_pos_error = -env.joint_velocities()[:7]
                 desired_torque_control1 = (np.multiply(np.array(position_error_control1), np.array(100)) + np.multiply(vel_pos_error,kd))
-                desired_torque = (np.multiply(np.array(position_error), np.array(kp)) + np.multiply(vel_pos_error, kd)) + desired_torque_control1
+                desired_torque = (np.multiply(np.array(position_error), np.array(K_max)) + np.multiply(vel_pos_error, kd)) + desired_torque_control1
             
             else: # controller 2, pre-move phase
                 F, error = compute_ts_force(curr_pos, curr_ori, target_pos, original_ori, curr_vel, curr_omg, target_vel)
@@ -298,7 +303,7 @@ if __name__ == "__main__":
             object_pos = env.get_site_pos("obj_contact")
             dis = np.sqrt(np.sum(np.square(joint_pos - object_pos)))
             if dis > 1:
-                env.sim.data.xfrc_applied[env.sim.model.body_name2id("object"), :] = np.array([0, 40, 0, 0, 0, 0])
+                env.sim.data.xfrc_applied[env.sim.model.body_name2id("object"), :] = np.array([0, 20, 0, 0, 0, 0])
             else:
                 env.sim.data.xfrc_applied[env.sim.model.body_name2id("object"), :] = np.array([0, 0, 0, 0, 0, 0])
             
@@ -327,7 +332,7 @@ if __name__ == "__main__":
     curr_ee, original_ori = env.get_ee_pose()  # end effector's pose
     curr_vel_ee, curr_omg_ee = env.get_ee_velocity()  # end effector's velocity
     target_pos = curr_ee.copy()
-    target_y_vel = np.linspace(curr_vel_ee[1], curr_vel_ee[1] + 0.4, 100).tolist()
+    target_y_vel = np.linspace(curr_vel_ee[1], curr_vel_ee[1] + 0.8, 60).tolist()
     y_target_vel = curr_vel_ee[1]
     target_vel = curr_vel_ee.copy()
 

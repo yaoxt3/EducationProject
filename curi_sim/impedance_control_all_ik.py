@@ -20,7 +20,7 @@ from dm_control.mujoco.wrapper import mjbindings
 from dm_control.utils import inverse_kinematics as ik
 mjlib = mjbindings.mjlib
 
-_ARM_XML = assets.get_contents('/home/yxt/Research/Teng/EducationProject/curi_sim/description/Franka/arm_for_IK.xml')
+_ARM_XML = assets.get_contents('/home/yxt/Research/code/EducationProject/curi_sim/description/Franka/arm_for_IK.xml')
 _SITE_NAME = 'ee_joint'
 _JOINTS = ['panda0_joint1', 'panda0_joint2', 'panda0_joint3', 'panda0_joint4', 'panda0_joint5', 'panda0_joint6', 'panda0_joint7']
 _TOL = 1.2e-8
@@ -239,9 +239,6 @@ def impedance_control_integration(ctrl_rate):
 
 def go_to_initial_pos():
     global env, robot, joint_controller, su_flag, update_ee
-    initial_pos = np.array([0.0, 0.85, -0.2, -1.7, -1.62, 1.6, 1.0])
-
-    env.set_initial_pos(initial_pos)
     
     while update_ee:
         jtor, su_flag = joint_controller.impedance_controller_joint()
@@ -259,6 +256,8 @@ if __name__ == "__main__":
     target1 = np.array([0.0, 0.9, 0.0, -1.7, -1.62, 1.6, 0.0])  # target 1
     target2 = np.array([0.0, 0.9, -0.4, -1.7, -1.62, 1.95, 0.3])  # target 2
     joint_controller.set_target(target2)
+    initial_pos = np.array([0.0, 0.85, -0.2, -1.7, -1.62, 1.6, 1.0])
+    env.set_initial_pos(initial_pos)
         
     # inverse kinematics solver
     ik_target_pos = None
@@ -290,13 +289,15 @@ if __name__ == "__main__":
             dis = np.sqrt(np.sum(np.square(joint_pos - object_pos)))
             if dis > 1:
                 env.sim.data.xfrc_applied[env.sim.model.body_name2id("object"), :] = np.array([0, 40, 0, 0, 0, 0])
-            elif dis <= 1:
+            else:
                 env.sim.data.xfrc_applied[env.sim.model.body_name2id("object"), :] = np.array([0, 0, 0, 0, 0, 0])
-            if dis < 0.3:
-                break_flag = True
+            
             vel = env.joint_velocities()[7] 
             pub_vel.publish(vel)
             pub_f.publish(force_norm)
+            
+            if dis < 0.3:
+                break_flag = True
             
         if break_flag:
             break        

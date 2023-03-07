@@ -1,4 +1,4 @@
-# EducationProject for Franka panda with impedance control
+# Franka panda with impedance control
 
 This repository is forked from: https://github.com/1am5hy/EducationProject.git
 

@@ -223,7 +223,7 @@ def impedance_control_integration(ctrl_rate):
                 diff_ori = quatdiff_in_euler(curr_ori, target_ee_ori)
                 print(f"in contact 2 diff ori: {diff_ori}")
                 ee_curr_pos, ee_curr_ori = env.get_ee_pose()
-                if (np.absolute(diff_ori) > 0.08).any():
+                if (np.absolute(diff_ori) > 0.06).any():
                     adjust_joint_pos = inverse_kinematics(ee_curr_pos, target_ee_ori, env.joint_position()[:7])
                     env.set_initial_pos(adjust_joint_pos)
 
@@ -240,7 +240,6 @@ def impedance_control_integration(ctrl_rate):
 def go_to_initial_pos():
     global env, robot, joint_controller, su_flag, update_ee
     initial_pos = np.array([0.0, 0.85, -0.2, -1.7, -1.62, 1.6, 1.0])
-    # initial_pos2 = np.array([0.0, 0.85, -0.3, -1.7, -1.62, 1.95, 0.3])
 
     env.set_initial_pos(initial_pos)
     

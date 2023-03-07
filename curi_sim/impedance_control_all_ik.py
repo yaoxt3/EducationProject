@@ -104,7 +104,7 @@ def inverse_kinematics_thread():
 # Task-space controller parameters
 # stiffness gains
 P_pos = 1800.
-P_ori = 450.
+P_ori = 600.
 # damping gains
 D_pos = 2.*np.sqrt(P_pos)
 D_ori = 2.
@@ -194,7 +194,8 @@ def impedance_control_integration(ctrl_rate):
                     switch_controller = 2
                 count += 1
                 break
-
+            
+            k_tmp = 200 + step**2
             # if object's velocity < 0.02, stop the robot
             while vel < 0.01 and switch_controller == 2:
                 target_joint = ik_result.copy()
@@ -214,8 +215,8 @@ def impedance_control_integration(ctrl_rate):
                 # impedance control based on joint position
                 position_error = (target_joint - env.joint_position()[:7]) * 0.02
                 vel_pos_error = -env.joint_velocities()[:7]
-                desired_torque_control1 = (np.multiply(np.array(position_error_control1), np.array(100)) + np.multiply(vel_pos_error,kd))
-                desired_torque = (np.multiply(np.array(position_error), np.array(K_max)) + np.multiply(vel_pos_error, kd)) + desired_torque_control1
+                desired_torque_control1 = (np.multiply(np.array(position_error_control1), np.array(200)) + np.multiply(vel_pos_error, kd))
+                desired_torque = (np.multiply(np.array(position_error), np.array(k_tmp)) + np.multiply(vel_pos_error, kd)) + desired_torque_control1
             
             else: # controller 2, pre-move phase
                 F, error = compute_ts_force(curr_pos, curr_ori, target_pos, original_ori, curr_vel, curr_omg, target_vel)
@@ -303,7 +304,7 @@ if __name__ == "__main__":
             object_pos = env.get_site_pos("obj_contact")
             dis = np.sqrt(np.sum(np.square(joint_pos - object_pos)))
             if dis > 1:
-                env.sim.data.xfrc_applied[env.sim.model.body_name2id("object"), :] = np.array([0, 20, 0, 0, 0, 0])
+                env.sim.data.xfrc_applied[env.sim.model.body_name2id("object"), :] = np.array([0, 40, 0, 0, 0, 0])
             else:
                 env.sim.data.xfrc_applied[env.sim.model.body_name2id("object"), :] = np.array([0, 0, 0, 0, 0, 0])
             

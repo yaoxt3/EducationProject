@@ -70,38 +70,36 @@ def inverse_kinematics(target_pos, target_quat, current_pos):
 
 # inverse kinematics thread
 def inverse_kinematics_thread():
-    global physics2, ik_target_pos, ik_target_quat, ik_current_pos, ik_joint_pos
-    count = 0
-    physics2.named.data.qpos[_JOINTS] = ik_current_pos
-    step = 0
+    global ik_physics2, ik_target_ee_pos, ik_target_ee_quat, ik_current_jpos, ik_result, ik_solver
+    
     while True:
-        step = 0
-        while True:
-            result = ik.qpos_from_site_pose(
-                physics=physics2,
-                site_name=_SITE_NAME,
-                target_pos=ik_target_pos,
-                target_quat=ik_target_quat,
-                joint_names=_JOINTS,
-                tol=_TOL,
-                max_steps=_MAX_STEPS,
-                inplace=False,
-            )
-            if result.success:
-                break
-            elif count < _MAX_RESETS:
-                physics2.named.data.qpos[_JOINTS] = ik_current_pos
-                count += 1
-            else:
-                raise RuntimeError(
-                    'Failed to find a solution within %i attempts.' % _MAX_RESETS)
-            step += 1
-        
-        ik_joint_pos = result.qpos
+        if ik_solver:
+            count = 0
+            ik_physics2.named.data.qpos[_JOINTS] = ik_current_jpos
+            while True:
+                result = ik.qpos_from_site_pose(
+                    physics=ik_physics2,
+                    site_name=_SITE_NAME,
+                    target_pos=ik_target_ee_pos,
+                    target_quat=ik_target_ee_quat,
+                    joint_names=_JOINTS,
+                    tol=_TOL,
+                    max_steps=_MAX_STEPS,
+                    inplace=False,
+                )
+                if result.success:
+                    break
+                elif count < _MAX_RESETS:
+                    ik_physics2.named.data.qpos[_JOINTS] = ik_current_jpos
+                    count += 1
+                else:
+                    raise RuntimeError(
+                        'Failed to find a solution within %i attempts.' % _MAX_RESETS)
+            ik_result = result.qpos.copy()
+            
         time.sleep(0.01)
 
-      
-      
+
 # --------- Modify as required ------------ #
 # Task-space controller parameters
 # stiffness gains
@@ -126,14 +124,13 @@ def compute_ts_force(curr_pos, curr_ori, goal_pos, goal_ori, curr_vel, curr_omg,
 
 def impedance_control_integration(ctrl_rate):
     global env, target_pos, target_vel, original_ori, joint_controller, robot, run_controller
-    global ik_target_pos, ik_target_quat, ik_current_pos, ik_joint_pos
+    global ik_target_ee_pos, ik_target_ee_quat, ik_current_jpos, ik_result, ik_solver
     count = 0
     threshold = 0.0000005
 
     target_pos = curr_ee.copy()
     target_vel = curr_vel_ee.copy()
     step = 1
-    jpos_in_contact = []
     switch_controller = 1
 
     kp = 1000
@@ -163,6 +160,10 @@ def impedance_control_integration(ctrl_rate):
 
             vel = env.joint_velocities()[7]
             pub_vel.publish(vel)
+            
+            # updata ik solver parameters
+            ik_target_ee_pos = curr_pos.copy()
+            ik_current_jpos = env.joint_position()[:7]
 
             for i in range(env.sim.data.ncon):
                 # Note that the contact array has more than `ncon` entries,
@@ -182,9 +183,6 @@ def impedance_control_integration(ctrl_rate):
             pub_f.publish(force_norm)
             total_force += force_norm
             
-            print(f"Step: {step}, TotalForce: {total_force}, Object vel:{vel}")
-            print("###################")
-
             while force_norm > 0:
                 if count == 0:
                     target_joint = env.joint_position()[:7]
@@ -194,26 +192,34 @@ def impedance_control_integration(ctrl_rate):
 
             # if object's velocity < 0.02, stop the robot
             while vel < 0.01 and switch_controller == 2:
-                target_joint = inverse_kinematics(ee_curr_pos, target_ee_ori, env.joint_position()[:7])
-                # target_joint = env.joint_position()[:7]
+                target_joint = ik_result.copy()
                 switch_controller = 3
+                print("object stop")
                 break
 
             if count > 0: # controller 1, in-contact phase
-                # 1.Joint position-based PD controller
-                # end effector pose adjustment
-                target_ee_pos_control1, _ = env.get_ee_pose()
-                adjust_joint_pos_control1 = inverse_kinematics(target_ee_pos_control1, target_ee_ori, env.joint_position()[:7])
-                position_error_control1 = adjust_joint_pos_control1 - env.joint_position()[:7]
+                # end effector's pose adjustment
+                ik_solver = True # start ik solver thread
+                if ik_result is not None:
+                    adjust_joint_pos_control = ik_result.copy()
+                else:
+                    adjust_joint_pos_control = env.joint_position()[:7]
+                position_error_control1 = adjust_joint_pos_control - env.joint_position()[:7]
+                
                 # impedance control based on joint position
-                position_error = (target_joint - env.joint_position()[:7]) * 0.01
+                position_error = (target_joint - env.joint_position()[:7]) * 0.02
                 vel_pos_error = -env.joint_velocities()[:7]
                 desired_torque_control1 = (np.multiply(np.array(position_error_control1), np.array(100)) + np.multiply(vel_pos_error,kd))
                 desired_torque = (np.multiply(np.array(position_error), np.array(kp)) + np.multiply(vel_pos_error, kd)) + desired_torque_control1
+            
             else: # controller 2, pre-move phase
                 F, error = compute_ts_force(curr_pos, curr_ori, target_pos, original_ori, curr_vel, curr_omg, target_vel)
                 desired_torque = np.dot(env.get_ee_jacobian("ee_joint").T, F).flatten().tolist()
                 _, target_ee_ori = env.get_ee_pose() # record the ee position and pose at the moment of contact
+                ik_target_ee_quat = target_ee_ori.copy()
+                ik_target_ee_pos = curr_pos.copy()
+                ik_current_jpos = env.joint_position()[:7]
+                
 
             # Return desired torques plus gravity compensations
             MassMatrix = joint_controller.dynamics.MassMatrix()
@@ -225,9 +231,9 @@ def impedance_control_integration(ctrl_rate):
             # adjust end effector pose via inverse kinematics
             if count > 0:
                 diff_ori = quatdiff_in_euler(curr_ori, target_ee_ori)
-                print(f"in contact 2 diff ori: {diff_ori}")
                 ee_curr_pos, ee_curr_ori = env.get_ee_pose()
                 if (np.absolute(diff_ori) > 0.2).any():
+                    print(f"diff ori:{diff_ori}")
                     adjust_joint_pos = inverse_kinematics(ee_curr_pos, target_ee_ori, env.joint_position()[:7])
                     env.set_initial_pos(adjust_joint_pos)
 
@@ -236,8 +242,7 @@ def impedance_control_integration(ctrl_rate):
             if sleep_time_c > 0.0:
                 print(f"sleep_time_c:{sleep_time_c}")
                 time.sleep(sleep_time_c)
-            # time.sleep(0.002)
-
+            # time.sleep(0.001)
             step += 1
 
 
@@ -264,12 +269,13 @@ if __name__ == "__main__":
     env.set_initial_pos(initial_pos)
         
     # inverse kinematics solver
-    ik_target_pos = None
-    ik_target_quat = None
-    ik_current_pos = None
-    ik_joint_pos = None
+    ik_target_ee_pos = None
+    ik_target_ee_quat = None
+    ik_current_jpos = None
+    ik_result = None
+    ik_solver = False
     ik_physics = mujoco.Physics.from_xml_string(_ARM_XML)
-    physics2 = ik_physics.copy(share_model=True)
+    ik_physics2 = ik_physics.copy(share_model=True)
 
     rospy.init_node('talker', anonymous=True)
     pub_d = rospy.Publisher('distance', Float32, queue_size=10)  # the distance between object and robot's end effector
@@ -328,8 +334,8 @@ if __name__ == "__main__":
     ctrl_thread = threading.Thread(target=impedance_control_integration, args=[ctrl_rate])  # multi-thread
     ctrl_thread.start()
     
-    # ik_thread = threading.Thread(target=inverse_kinematics_thread)
-    # ik_thread.start()
+    ik_thread = threading.Thread(target=inverse_kinematics_thread)
+    ik_thread.start()
     
     now_r = time.time()
     i = 0

@@ -274,7 +274,7 @@ class Franka_robot(Base_robot):
         #     self.sim.forward()
 
     def set_joint_torque(self, jfrc):
-        self.sim.data.ctrl[:7] = jfrc  # the sequence is as same as xml model
+        self.sim.data.ctrl[0:7] = jfrc  # the sequence is as same as xml model
 
     def set_joint_torques_cmd(self, torques):
         acc_des = np.zeros(self.sim.model.nv)
